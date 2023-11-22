@@ -13,6 +13,8 @@ import lunr from 'lunr'
 const idx = lunr(function () {
   this.ref('name')
   this.field('text')
+    this.field('name')
+
 
   rulesArr.forEach(function (doc) {
     this.add(doc)
