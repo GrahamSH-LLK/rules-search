@@ -10,6 +10,19 @@ const fetchAndParse = async (url) => {
     const dom = new JSDOM(html);
     const document = dom.window.document;
     //console.log(document)
+    const imageUrlPrefix = "https://firstfrc.blob.core.windows.net/frc2023/Manual/HTML/"
+    const images = document.querySelectorAll('img');
+
+    // Iterate through each image and update the src attribute
+    images.forEach(image => {
+      const currentSrc = image.getAttribute('src');
+      if (currentSrc) {
+        // Prefix the image URL with the specified prefix
+        const newSrc = imageUrlPrefix + currentSrc;
+        image.setAttribute('src', newSrc);
+      }
+    });
+
     const x = extractRuleNumberText(document);
     // Access and manipulate the DOM as needed
     await fs.writeFile('./src/lib/rules.json',JSON.stringify(x))
