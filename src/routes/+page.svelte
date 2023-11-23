@@ -20,10 +20,12 @@
   };
 </script>
 
-<h1>Fuzzy Rule Search</h1>
+<h1 class="text-3xl font-bold underline">Fuzzy Rule Search</h1>
 <p>Search anything below to find a relavent rule</p>
 <input bind:value on:input={search} />
 {#each currResults as res}
-  <h1>{res.ref}</h1>
-  <p>{@html rules[res.ref].text}</p>
+<div class="prose-lg bg-indigo-50">  <h3>{res.ref}</h3>
+  <div >{@html rules[res.ref].text}</div>
+</div>
+
 {/each}
