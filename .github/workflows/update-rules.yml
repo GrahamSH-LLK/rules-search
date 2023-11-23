@@ -4,6 +4,9 @@ on:
   schedule:
     - cron: '0 0 * * *'  # Run every day at midnight
 
+  workflow_dispatch:
+    
+
 jobs:
   run-node-script:
     runs-on: ubuntu-latest
@@ -22,3 +25,11 @@ jobs:
 
       - name: Run Node.js script
         run: node update.js
+
+      - name: Commit rules
+        run: |
+          git add src/lib/rules.json
+          git config --global user.name 'GrahamSH-LLK'
+          git config --global user.email 'grahamsh-llk@users.noreply.github.com'
+          git commit -am "Automated rules update"
+          git push
