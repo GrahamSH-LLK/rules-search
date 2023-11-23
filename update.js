@@ -56,7 +56,7 @@ function extractRuleNumberText(document) {
       const textArray = [];
       let currentElement = element.nextElementSibling;
   
-      while (currentElement && !currentElement.className.includes('RuleNumber')) {
+      while (currentElement && !currentElement.className.includes('RuleNumber') && !currentElement.querySelector('h2')) {
         textArray.push(currentElement.outerHTML);
         currentElement = currentElement.nextElementSibling;
       }
