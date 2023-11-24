@@ -17,5 +17,5 @@
 />
 <div>
   <h1>{data.rule}</h1>
-  <p>{data.summary}</p>
+  <div>{@html data.text}</div>
 </div>

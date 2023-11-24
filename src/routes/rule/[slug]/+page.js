@@ -4,6 +4,7 @@ console.log(rules[params.slug])
     return {
         rule: rules[params.slug].name,
 
-        summary: rules[params.slug].summary
+        summary: rules[params.slug].summary,
+        text: rules[params.slug].text
     }
 }
