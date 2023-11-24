@@ -21,6 +21,7 @@
 	"dependencies": {
 		"@sveltejs/adapter-cloudflare": "^2.3.3",
 		"jsdom": "^22.1.0",
-		"lunr": "^2.3.9"
+		"lunr": "^2.3.9",
+		"svelte-meta-tags": "^3.1.0"
 	}
 }
