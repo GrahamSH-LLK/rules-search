@@ -2,7 +2,7 @@
   import { MetaTags } from "svelte-meta-tags";
   export let data;
 </script>
-
+{#if !data.error}
 <MetaTags
   title={data.rule}
   description={data.summary}
@@ -26,3 +26,7 @@
   <h1>{data.rule}</h1>
   <div>{@html data.text}</div>
 </div>
+{:else}
+Error loading data
+{/if}
+

@@ -1,11 +1,17 @@
-import rules from "$lib/rules"
+import rules from "$lib/rules";
 export const load = ({ params }) => {
-//console.log(rules[params.slug])
+  const rule = rules[params.slug.toUpperCase()];
+  if (!rule) {
     return {
-        rule: rules[params.slug].name,
-
-        summary: rules[params.slug].summary,
-        text: rules[params.slug].text,
-        images: rules[params.slug].additionalContent.filter((x)=> {return x.type == 'image'})
+        error: true
     }
-}
+  }
+  return {
+    rule: rule.name,
+    summary: rule.summary,
+    text: rule.text,
+    images: rule.additionalContent.filter((x) => {
+      return x.type == "image";
+    }),
+  };
+};
