@@ -1,6 +1,6 @@
 import { JSDOM } from "jsdom";
 import fs from "fs/promises";
-
+const currYear = new Date().getFullYear();
 
 const fetchAndParse = async (url) => {
   try {
@@ -16,7 +16,7 @@ const fetchAndParse = async (url) => {
     const document = dom.window.document;
     //console.log(document)
     const imageUrlPrefix =
-      "https://firstfrc.blob.core.windows.net/frc2023/Manual/HTML/";
+      `https://firstfrc.blob.core.windows.net/frc${currYear}/Manual/HTML/`;
     const images = document.querySelectorAll("img");
 
     // Iterate through each image and update the src attribute
@@ -38,7 +38,7 @@ const fetchAndParse = async (url) => {
 };
 
 const url =
-  "https://firstfrc.blob.core.windows.net/frc2023/Manual/HTML/2023FRCGameManual.htm";
+  `https://firstfrc.blob.core.windows.net/frc${currYear}/Manual/HTML/${currYear}FRCGameManual.htm`;
 fetchAndParse(url);
 
 function extractRuleNumberText(document) {
@@ -105,5 +105,3 @@ function extractRuleNumberText(document) {
   return result;
 }
 
-// Call the function
-//extractRuleNumberText();
