@@ -16,6 +16,9 @@
   }}
 />
 <div>
+    <a href="/">Home</a>
+</div>
+<div>
   <h1>{data.rule}</h1>
   <div>{@html data.text}</div>
 </div>
