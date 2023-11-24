@@ -72,7 +72,7 @@ function extractRuleNumberText(document) {
       });
       let images = currentElement.querySelectorAll('img');
       for (const image of images) {
-        textArray.push({type: "image", src: image.src})
+        textArray.push({type: "image", src: image.src, width: image.width, height: image.height, alt: image.alt})
       }
       currentElement = currentElement.nextElementSibling;
     }
