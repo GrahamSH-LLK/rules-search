@@ -6,17 +6,16 @@ const fetchAndParse = async (url) => {
   try {
     // Fetch HTML content from the URL
     const response = await fetch(url);
-    const dec = new TextDecoder("windows-1252") //Here I can inform the desired charset
-    const arrBuffer = await response.arrayBuffer()
-    const ui8array = new Uint8Array(arrBuffer)
-    const html = dec.decode(ui8array)
+    const dec = new TextDecoder("windows-1252"); //Here I can inform the desired charset
+    const arrBuffer = await response.arrayBuffer();
+    const ui8array = new Uint8Array(arrBuffer);
+    const html = dec.decode(ui8array);
 
     // Use jsdom to parse the HTML
     const dom = new JSDOM(html);
     const document = dom.window.document;
     //console.log(document)
-    const imageUrlPrefix =
-      `https://firstfrc.blob.core.windows.net/frc${currYear}/Manual/HTML/`;
+    const imageUrlPrefix = `https://firstfrc.blob.core.windows.net/frc${currYear}/Manual/HTML/`;
     const images = document.querySelectorAll("img");
 
     // Iterate through each image and update the src attribute
@@ -37,8 +36,7 @@ const fetchAndParse = async (url) => {
   }
 };
 
-const url =
-  `https://firstfrc.blob.core.windows.net/frc${currYear}/Manual/HTML/${currYear}FRCGameManual.htm`;
+const url = `https://firstfrc.blob.core.windows.net/frc${currYear}/Manual/HTML/${currYear}FRCGameManual.htm`;
 fetchAndParse(url);
 
 function extractRuleNumberText(document) {
@@ -52,14 +50,14 @@ function extractRuleNumberText(document) {
   elements.forEach((element, index) => {
     // Find the next element with a different 'RuleNumber' class
     const nextRuleNumberIndex = Array.from(elements).findIndex(
-      (el, i) => i > index && el.className.includes("RuleNumber")
+      (el, i) => i > index && el.className.includes("RuleNumber"),
     );
 
     // Extract the text from siblings until the next 'RuleNumber' element
     const htmlArr = [];
     const textArray = [];
     let currentElement = element.nextElementSibling;
-    textArray.push({type: 'text', text:element.textContent});
+    textArray.push({ type: "text", text: element.textContent });
     while (
       currentElement &&
       !currentElement.className.includes("RuleNumber") &&
@@ -68,11 +66,19 @@ function extractRuleNumberText(document) {
       htmlArr.push(currentElement.outerHTML);
       textArray.push({
         text: currentElement.textContent,
-        type: currentElement.querySelector('[class*="BlueBox"]') ? 'box' : 'text',
+        type: currentElement.querySelector('[class*="BlueBox"]')
+          ? "box"
+          : "text",
       });
-      let images = currentElement.querySelectorAll('img');
+      let images = currentElement.querySelectorAll("img");
       for (const image of images) {
-        textArray.push({type: "image", src: image.src, width: image.width, height: image.height, alt: image.alt})
+        textArray.push({
+          type: "image",
+          src: image.src,
+          width: image.width,
+          height: image.height,
+          alt: image.alt,
+        });
       }
       currentElement = currentElement.nextElementSibling;
     }
@@ -93,6 +99,7 @@ function extractRuleNumberText(document) {
       text: element.outerHTML + htmlArr.join(""),
       summary: element.textContent,
       additionalContent: textArray,
+      evergreen: element.className.includes("Evergreen"),
     };
 
     // Move the index to the next 'RuleNumber' element
@@ -104,4 +111,3 @@ function extractRuleNumberText(document) {
   // Output the final object
   return result;
 }
-

@@ -20,12 +20,19 @@
   };
 </script>
 
-<h1 class="text-3xl font-bold underline">Fuzzy Rule Search</h1>
-<p>Search anything below to find a relavent rule</p>
-<input bind:value on:input={search} />
-{#each currResults as res}
-<div class="prose-lg bg-indigo-50">  <h3>{res.ref}</h3>
-  <div >{@html rules[res.ref].text}</div>
-</div>
+<div>
+  <p>Search anything below to find a relavent rule</p>
+  <input bind:value on:input={search} />
+  {#each currResults as res}
+    <div class="prose w-full p-2 my-2 border border-indigo-950 rounded-md">
+      <h3>
+        <a href={`/rule/${res.ref}`}>
 
-{/each}
+        {res.ref}
+        {#if rules[res.ref].evergreen}🌲{/if}
+        </a>
+      </h3>
+      <div>{@html rules[res.ref].text}</div>
+    </div>
+  {/each}
+</div>

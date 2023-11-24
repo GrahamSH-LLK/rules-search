@@ -3,8 +3,8 @@ export const load = ({ params }) => {
   const rule = rules[params.slug.toUpperCase()];
   if (!rule) {
     return {
-        error: true
-    }
+      error: true,
+    };
   }
   return {
     rule: rule.name,
@@ -13,5 +13,6 @@ export const load = ({ params }) => {
     images: rule.additionalContent.filter((x) => {
       return x.type == "image";
     }),
+    evergreen: rule.evergreen,
   };
 };
