@@ -1,93 +1,109 @@
-import { JSDOM } from 'jsdom';
-import fs from 'fs/promises'
+import { JSDOM } from "jsdom";
+import fs from "fs/promises";
+
+
 const fetchAndParse = async (url) => {
   try {
     // Fetch HTML content from the URL
     const response = await fetch(url);
-    const html = await response.text();
+    const dec = new TextDecoder("windows-1252") //Here I can inform the desired charset
+    const arrBuffer = await response.arrayBuffer()
+    const ui8array = new Uint8Array(arrBuffer)
+    const html = dec.decode(ui8array)
 
     // Use jsdom to parse the HTML
     const dom = new JSDOM(html);
     const document = dom.window.document;
     //console.log(document)
-    const imageUrlPrefix = "https://firstfrc.blob.core.windows.net/frc2023/Manual/HTML/"
-    const images = document.querySelectorAll('img');
+    const imageUrlPrefix =
+      "https://firstfrc.blob.core.windows.net/frc2023/Manual/HTML/";
+    const images = document.querySelectorAll("img");
 
     // Iterate through each image and update the src attribute
-    images.forEach(image => {
-      const currentSrc = image.getAttribute('src');
+    images.forEach((image) => {
+      const currentSrc = image.getAttribute("src");
       if (currentSrc) {
         // Prefix the image URL with the specified prefix
         const newSrc = imageUrlPrefix + currentSrc;
-        image.setAttribute('src', newSrc);
+        image.setAttribute("src", newSrc);
       }
     });
 
     const x = extractRuleNumberText(document);
     // Access and manipulate the DOM as needed
-    await fs.writeFile('./src/lib/rules.json',JSON.stringify(x))
+    await fs.writeFile("./src/lib/rules.json", JSON.stringify(x));
   } catch (error) {
-    console.error('Error fetching or parsing the HTML:', error.message);
+    console.error("Error fetching or parsing the HTML:", error.message);
   }
 };
 
-const url = 'https://firstfrc.blob.core.windows.net/frc2023/Manual/HTML/2023FRCGameManual.htm';
+const url =
+  "https://firstfrc.blob.core.windows.net/frc2023/Manual/HTML/2023FRCGameManual.htm";
 fetchAndParse(url);
 
 function extractRuleNumberText(document) {
-    // Select the first element with a class containing 'RuleNumber'
-    const elements = document.querySelectorAll('[class*="RuleNumber"]');
-    
-    // Object to store the results
-    const result = {};
-  
-    // Iterate through the selected elements
-    elements.forEach((element, index) => {
-      // Extract the class names of the current element
-      const classNames = element.className.split(' ');
-  
-      // Find the class that includes 'RuleNumber'
-      const ruleNumberClass = classNames.find(className => className.includes('RuleNumber'));
-  
-      // Find the next element with a different 'RuleNumber' class
-      const nextRuleNumberIndex = Array.from(elements).findIndex((el, i) => i > index && el.className.includes('RuleNumber'));
-  
-      // Extract the text from siblings until the next 'RuleNumber' element
-      const textArray = [];
-      let currentElement = element.nextElementSibling;
-  
-      while (currentElement && !currentElement.className.includes('RuleNumber') && !currentElement.querySelector('h2')) {
-        textArray.push(currentElement.outerHTML);
-        currentElement = currentElement.nextElementSibling;
+  // Select the first element with a class containing 'RuleNumber'
+  const elements = document.querySelectorAll('[class*="RuleNumber"]');
+
+  // Object to store the results
+  const result = {};
+
+  // Iterate through the selected elements
+  elements.forEach((element, index) => {
+    // Find the next element with a different 'RuleNumber' class
+    const nextRuleNumberIndex = Array.from(elements).findIndex(
+      (el, i) => i > index && el.className.includes("RuleNumber")
+    );
+
+    // Extract the text from siblings until the next 'RuleNumber' element
+    const htmlArr = [];
+    const textArray = [];
+    let currentElement = element.nextElementSibling;
+    textArray.push({type: 'text', text:element.textContent});
+    while (
+      currentElement &&
+      !currentElement.className.includes("RuleNumber") &&
+      !currentElement.querySelector("h2")
+    ) {
+      htmlArr.push(currentElement.outerHTML);
+      textArray.push({
+        text: currentElement.textContent,
+        type: currentElement.querySelector('[class*="BlueBox"]') ? 'box' : 'text',
+      });
+      let images = currentElement.querySelectorAll('img');
+      for (const image of images) {
+        textArray.push({type: "image", src: image.src})
       }
-  
-      // Create an object key based on the 'RuleNumber' class
-        let key = '';
-      const els = [...element.querySelectorAll('a')]
-        //console.log(els);
-      for (const el of els) {
-          if (el?.name?.match(/^([a-zA-Z])(\d{3})$/)?.length > 0) {
-              key = el.name;
-          }
+      currentElement = currentElement.nextElementSibling;
+    }
+
+    // Create an object key based on the 'RuleNumber' class
+    let key = "";
+    const els = [...element.querySelectorAll("a")];
+    //console.log(els);
+    for (const el of els) {
+      if (el?.name?.match(/^([a-zA-Z])(\d{3})$/)?.length > 0) {
+        key = el.name;
       }
-      //const key = ruleNumberClass + (index + 1);
-  
-      // Add the result to the object
-      result[key] = {
-        name: key, // Assuming the name is in the element itself
-        text: element.outerHTML + textArray.join('')
-      };
-  
-      // Move the index to the next 'RuleNumber' element
-      if (nextRuleNumberIndex !== -1) {
-        index = nextRuleNumberIndex - 1;
-      }
-    });
-  
-    // Output the final object
-    return result;
-  }
-  
-  // Call the function
-  //extractRuleNumberText();
-  
+    }
+
+    // Add the result to the object
+    result[key] = {
+      name: key,
+      text: element.outerHTML + htmlArr.join(""),
+      summary: element.textContent,
+      additionalContent: textArray,
+    };
+
+    // Move the index to the next 'RuleNumber' element
+    if (nextRuleNumberIndex !== -1) {
+      index = nextRuleNumberIndex - 1;
+    }
+  });
+
+  // Output the final object
+  return result;
+}
+
+// Call the function
+//extractRuleNumberText();
