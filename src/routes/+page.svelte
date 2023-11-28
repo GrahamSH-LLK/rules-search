@@ -1,4 +1,5 @@
 <script>
+  import { MetaTags } from "svelte-meta-tags";
   import rules from "$lib/rules.json";
   const rulesArr = Object.values(rules);
   import lunr from "lunr";
