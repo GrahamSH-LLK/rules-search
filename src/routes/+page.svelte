@@ -35,7 +35,7 @@
       currResults = x;
     }
   };
-  let semanticSearch = false;
+  let semanticSearch = true;
   const debounce = (callback, wait = 300) => {
     let timeout;
 
@@ -64,7 +64,7 @@
   }}
 />
 <div>
-  <form class="mt-4">
+  <form class="my-4">
     <div class="flex">
       <label
         for="search-dropdown"
@@ -92,7 +92,7 @@
     </div>
   </form>
   {#each currResults as res}
-    <div class="prose w-full p-2 my-2 border border-indigo-950 rounded-md">
+    <div class="prose max-w-full p-2 my-2 border border-gray-200 rounded-md">
       <h3>
         <a href={`/rule/${res.ref}`}>
           {res.ref}
