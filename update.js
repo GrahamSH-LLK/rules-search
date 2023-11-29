@@ -26,6 +26,9 @@ const fetchAndParse = async (url) => {
         const newSrc = imageUrlPrefix + currentSrc;
         image.setAttribute("src", newSrc);
       }
+      if (image.src.includes('image081.png')) {
+        image.remove();
+      }
     });
 
     const x = extractRuleNumberText(document);
