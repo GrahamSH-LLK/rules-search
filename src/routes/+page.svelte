@@ -1,4 +1,5 @@
 <script>
+  import { MetaTags } from "svelte-meta-tags";
   import rules from "$lib/rules.json";
   const rulesArr = Object.values(rules);
   import lunr from "lunr";
@@ -37,8 +38,21 @@
   let semanticSearch = false;
 </script>
 
+<MetaTags
+  title="FRC Rules Search"
+  description="A semantic search for FRC manual rules"
+  openGraph={{
+    url: "https://www.url.ie/a",
+
+    title: "FRC Rules Search",
+    description: "A semantic search for FRC manual rules",
+    siteName: "FRC Rules Search",
+    themeColor: "#ff00ff",
+    images: [],
+  }}
+/>
 <div>
-  <p>Search anything below to find a relavent rule</p>
+  <p>Search anything below to find a relevant rule</p>
   <label
     >Use Semantic Search<input
       type="checkbox"
