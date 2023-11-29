@@ -9,7 +9,8 @@
         class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start"
       >
         <div class="flex flex-shrink-0 items-center">
-          <a class="font-black text-white text-2xl" href="/">FRC Rules Search</a>
+          <a class="font-black text-white text-2xl" href="/">FRC Rules Search</a
+          >
         </div>
         <div class="hidden sm:ml-6 sm:block">
           <div class="flex space-x-4">

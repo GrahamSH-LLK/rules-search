@@ -19,7 +19,7 @@
     if (semanticSearch) {
       let res = await fetch(`https://search.grahamsh.com/search`, {
         method: "post",
-        body: JSON.stringify({"query":value}),
+        body: JSON.stringify({ query: value }),
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
@@ -27,8 +27,8 @@
       });
       let json = await res.json();
       let results = json.data.map((x) => {
-        return {...rules[x.text], ref: x.text};
-      })
+        return { ...rules[x.text], ref: x.text };
+      });
       currResults = results;
     } else {
       let x = idx.search(value);
@@ -36,6 +36,18 @@
     }
   };
   let semanticSearch = false;
+  const debounce = (callback, wait = 300) => {
+    let timeout;
+
+    return (...args) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => callback(...args), wait);
+    };
+  };
+  const toggle = () => {
+    semanticSearch = !semanticSearch;
+    search();
+  }
 </script>
 
 <MetaTags
@@ -52,20 +64,40 @@
   }}
 />
 <div>
-  <p>Search anything below to find a relevant rule</p>
-  <label
-    >Use Semantic Search<input
-      type="checkbox"
-      bind:checked={semanticSearch}
-    /></label
-  >
-  <input bind:value on:change={search} />
+  <form class="mt-4">
+    <div class="flex">
+      <label
+        for="search-dropdown"
+        class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white"
+        >Search</label
+      >
+      <button
+        class="flex-shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 rounded-s-lg hover:bg-gray-200 focus:ring-4 focus:outline-none  dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700 dark:text-white dark:border-gray-600"
+        type="button"
+        on:click={toggle}
+        >{semanticSearch ? 'Disable Semantic Search' : 'Enable Semantic Search'}</button
+      >
+
+      <div class="relative w-full">
+        <input
+          type="search"
+          id="search-dropdown"
+          class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-e-lg border-s-gray-50 border-s-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-s-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500"
+          placeholder="Search anything to find a relevant rule"
+          required
+          bind:value on:input={debounce(search)}
+        />
+
+      </div>
+    </div>
+  </form>
   {#each currResults as res}
     <div class="prose w-full p-2 my-2 border border-indigo-950 rounded-md">
       <h3>
         <a href={`/rule/${res.ref}`}>
           {res.ref}
-          {#if rules[res.ref].evergreen}🌲{/if}
+          {#if rules[res.ref].evergreen}<span title="Evergreen rule">🌲</span
+            >{/if}
         </a>
       </h3>
       <div>{@html rules[res.ref].text}</div>
