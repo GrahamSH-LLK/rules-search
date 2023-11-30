@@ -1,5 +1,15 @@
-import rules from "$lib/rules";
-export const load = ({ params }) => {
+import fs from "fs/promises";
+import path from 'path'
+export const prerender = true;
+export const load = async ({ params }) => {
+  let rules;
+  try {
+    rules = JSON.parse(await fs.readFile(path.resolve(`src/lib/${params.year}.json`)));
+    
+  } catch (e){
+    console.log(e)
+    return {error: true}
+  }
   const rule = rules[params.slug.toUpperCase()];
   if (!rule) {
     return {

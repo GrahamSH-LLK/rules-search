@@ -33,7 +33,7 @@ const fetchAndParse = async (url) => {
 
     const x = extractRuleNumberText(document);
     // Access and manipulate the DOM as needed
-    await fs.writeFile("./src/lib/rules.json", JSON.stringify(x));
+    await fs.writeFile(`./src/lib/${currYear}.json`, JSON.stringify(x));
   } catch (error) {
     console.error("Error fetching or parsing the HTML:", error.message);
   }
@@ -63,7 +63,7 @@ function extractRuleNumberText(document) {
     textArray.push({ type: "text", text: element.textContent });
     while (
       currentElement &&
-      !currentElement.className.includes("RuleNumber") &&
+      !currentElement.className.includes("Rule") &&
       !currentElement.querySelector("h2")
     ) {
       htmlArr.push(currentElement.outerHTML);
