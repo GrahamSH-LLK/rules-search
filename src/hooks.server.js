@@ -1,23 +1,13 @@
 export async function handle({ event, resolve }) {
     if (event.url.pathname == '/') {
-        const headers = new Headers({
-            location: 
-            '/' + new Date().getFullYear(),
-        });
-        return {
-            status: 302,
-            headers,
-        };
+
+        return Response.redirect('https://' + event.url.hostname + '/' + new Date().getFullYear());
 
     }
     if (event.url.pathname.startsWith('/rule')) {
-        const headers = new Headers({
-            location: `${event.url.href.replace('/rule', `/${new Date().getFullYear()}/rule`)}`,
-        });
-        return {
-            status: 302,
-            headers,
-        };
+        return Response.redirect(`${event.url.href.replace('/rule', `/${new Date().getFullYear()}/rule`)}`);
+
+        
 
     }
     // If no redirect is necessary, continue with the normal resolve process

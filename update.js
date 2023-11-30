@@ -50,6 +50,56 @@ function extractRuleNumberText(document) {
 
   // Object to store the results
   const result = {};
+  const otherElements = document.querySelectorAll('div > h2');
+  otherElements.forEach((element, index) => {
+    const nextRuleNumberIndex = Array.from(elements).findIndex(
+      (el, i) => i > index,
+    );
+
+    const htmlArr = [];
+    const textArray = [];
+    let currentElement = element.parentElement.nextElementSibling;
+    textArray.push({ type: "text", text: element.textContent });
+    while (
+      currentElement &&
+      !currentElement.className.includes("RuleNumber") && 
+      !currentElement.querySelector('h2')) {
+
+      htmlArr.push(currentElement.outerHTML);
+      textArray.push({
+        text: currentElement.textContent,
+        type: currentElement.querySelector('[class*="BlueBox"]')
+          ? "box"
+          : "text",
+      });
+      let images = currentElement.querySelectorAll("img");
+      for (const image of images) {
+        textArray.push({
+          type: "image",
+          src: image.src,
+          width: image.width,
+          height: image.height,
+          alt: image.alt,
+        });
+      }
+      currentElement = currentElement.nextElementSibling;
+    }
+    let key = element.textContent.match(/^\d+\.\d+/)[0];
+    result[key] = {
+      name: key,
+      text: element.outerHTML + htmlArr.join(""),
+      summary: element.textContent,
+      additionalContent: textArray,
+      evergreen: element.className.includes("Evergreen"),
+    };
+
+    // Move the index to the next 'RuleNumber' element
+    if (nextRuleNumberIndex !== -1) {
+      index = nextRuleNumberIndex - 1;
+    }
+
+
+  })
 
   // Iterate through the selected elements
   elements.forEach((element, index) => {
