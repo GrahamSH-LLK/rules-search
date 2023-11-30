@@ -34,6 +34,8 @@ const fetchAndParse = async (url) => {
     const x = extractRuleNumberText(document);
     // Access and manipulate the DOM as needed
     await fs.writeFile(`./src/lib/${currYear}.json`, JSON.stringify(x));
+    await fs.writeFile(`./src/lib/${currYear}.js`, "export default " + JSON.stringify(x));
+
   } catch (error) {
     console.error("Error fetching or parsing the HTML:", error.message);
   }

@@ -3,18 +3,20 @@
   //import rules from "$lib/rules.json";
   export let data;
   import lunr from "lunr";
-
+  let idx;
+  let rulesArr;
+  const rules = data.rules;
   if (!data.error) {
-  const rulesArr = Object.values(data.rules);
-  const idx = lunr(function () {
-    this.ref("name");
-    this.field("text");
-    this.field("name");
+    rulesArr = Object.values(rules);
+    idx = lunr(function () {
+      this.ref("name");
+      this.field("text");
+      this.field("name");
 
-    rulesArr.forEach(function (doc) {
-      this.add(doc);
-    }, this);
-  });
+      rulesArr.forEach(function (doc) {
+        this.add(doc);
+      }, this);
+    });
   }
   let value = "";
   let currResults = [];
@@ -30,7 +32,7 @@
       });
       let json = await res.json();
       let results = json.data.map((x) => {
-        return { ...data.rules[x.text], ref: x.text };
+        return { ...rules[x.text], ref: x.text };
       });
       currResults = results;
     } else {
@@ -51,7 +53,6 @@
     semanticSearch = !semanticSearch;
     search();
   };
-
 </script>
 
 {#if !data.error}
@@ -100,17 +101,22 @@
         </div>
       </div>
     </form>
+    {#if !currResults.length}
+      <div class="max-w-full p-2 py-4 my-2 border border-gray-200 rounded-md">
+        No results!
+      </div>
+    {/if}
     {#each currResults as res}
       <div class="prose max-w-full p-2 my-2 border border-gray-200 rounded-md">
         <h3>
           <a href={`/rule/${res.ref}`}>
             {res.ref}
-            {#if data.rules[res.ref].evergreen}<span title="Evergreen rule"
+            {#if rules[res.ref].evergreen}<span title="Evergreen rule"
                 >🌲</span
               >{/if}
           </a>
         </h3>
-        <div>{@html data.rules[res.ref].text}</div>
+        <div>{@html rules[res.ref].text}</div>
       </div>
     {/each}
   </div>
