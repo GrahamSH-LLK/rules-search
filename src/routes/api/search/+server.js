@@ -21,6 +21,6 @@ export async function GET({ url }) {
   return json(
     x.map((x) => {
       return { name: x.ref, text: rules[x.ref].text };
-    })
+    }),
   );
 }

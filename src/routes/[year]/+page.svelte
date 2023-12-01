@@ -111,8 +111,7 @@
         <h3>
           <a href={`/rule/${res.ref}`}>
             {res.ref}
-            {#if rules[res.ref].evergreen}<span title="Evergreen rule"
-                >🌲</span
+            {#if rules[res.ref].evergreen}<span title="Evergreen rule">🌲</span
               >{/if}
           </a>
         </h3>

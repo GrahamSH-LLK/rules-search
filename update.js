@@ -1,6 +1,6 @@
 import { JSDOM } from "jsdom";
 import fs from "fs/promises";
-const currYear = new Date().getFullYear();
+const currYear = 2022; //new Date().getFullYear();
 
 const fetchAndParse = async (url) => {
   try {
@@ -26,7 +26,7 @@ const fetchAndParse = async (url) => {
         const newSrc = imageUrlPrefix + currentSrc;
         image.setAttribute("src", newSrc);
       }
-      if (image.src.includes('image081.png')) {
+      if (image.src.includes("image081.png")) {
         image.remove();
       }
     });
@@ -34,8 +34,10 @@ const fetchAndParse = async (url) => {
     const x = extractRuleNumberText(document);
     // Access and manipulate the DOM as needed
     await fs.writeFile(`./src/lib/${currYear}.json`, JSON.stringify(x));
-    await fs.writeFile(`./src/lib/${currYear}.js`, "export default " + JSON.stringify(x));
-
+    await fs.writeFile(
+      `./src/lib/${currYear}.js`,
+      "export default " + JSON.stringify(x),
+    );
   } catch (error) {
     console.error("Error fetching or parsing the HTML:", error.message);
   }
@@ -50,7 +52,7 @@ function extractRuleNumberText(document) {
 
   // Object to store the results
   const result = {};
-  const otherElements = document.querySelectorAll('div > h2');
+  const otherElements = document.querySelectorAll("div > h2");
   otherElements.forEach((element, index) => {
     const nextRuleNumberIndex = Array.from(elements).findIndex(
       (el, i) => i > index,
@@ -62,9 +64,9 @@ function extractRuleNumberText(document) {
     textArray.push({ type: "text", text: element.textContent });
     while (
       currentElement &&
-      !currentElement.className.includes("RuleNumber") && 
-      !currentElement.querySelector('h2')) {
-
+      !currentElement.className.includes("RuleNumber") &&
+      !currentElement.querySelector("h2")
+    ) {
       htmlArr.push(currentElement.outerHTML);
       textArray.push({
         text: currentElement.textContent,
@@ -87,6 +89,15 @@ function extractRuleNumberText(document) {
     let key = element.textContent.match(/^\d+\.\d+/)[0];
     result[key] = {
       name: key,
+      textContent:
+        element.textContent +
+        textArray.reduce((prev, next) => {
+          if (next.type == "text") {
+            return prev + " " + next.text;
+          } else {
+            return prev;
+          }
+        }, ""),
       text: element.outerHTML + htmlArr.join(""),
       summary: element.textContent,
       additionalContent: textArray,
@@ -97,9 +108,7 @@ function extractRuleNumberText(document) {
     if (nextRuleNumberIndex !== -1) {
       index = nextRuleNumberIndex - 1;
     }
-
-
-  })
+  });
 
   // Iterate through the selected elements
   elements.forEach((element, index) => {
@@ -155,6 +164,15 @@ function extractRuleNumberText(document) {
       summary: element.textContent,
       additionalContent: textArray,
       evergreen: element.className.includes("Evergreen"),
+      textContent:
+        element.textContent +
+        textArray.reduce((prev, next) => {
+          if (next.type == "text") {
+            return prev + " " + next.text;
+          } else {
+            return prev;
+          }
+        }, ""),
     };
 
     // Move the index to the next 'RuleNumber' element
