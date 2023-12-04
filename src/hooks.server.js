@@ -5,8 +5,9 @@ export async function handle({ event, resolve }) {
     );
   }
   if (event.url.pathname.startsWith("/rule")) {
+    console.log(event.url.href)
     return Response.redirect(
-      `${event.url.href.replace("/rule", `/${new Date().getFullYear()}/rule`)}`,
+      "https://" + event.url.hostname + `${event.url.pathname.replace("/rule", `/${new Date().getFullYear()}/rule`)}`,
     );
   }
   // If no redirect is necessary, continue with the normal resolve process
