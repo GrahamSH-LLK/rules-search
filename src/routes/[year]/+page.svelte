@@ -1,11 +1,15 @@
 <script>
   import { MetaTags } from "svelte-meta-tags";
   //import rules from "$lib/rules.json";
+  import { page } from "$app/stores"; 
+
   export let data;
   import lunr from "lunr";
+  import { onMount } from "svelte";
   let idx;
   let rulesArr;
   const rules = data.rules;
+  
   if (!data.error) {
     rulesArr = Object.values(rules);
     idx = lunr(function () {
@@ -21,6 +25,7 @@
   let value = "";
   let currResults = [];
   const search = async () => {
+    setParam('query', value)
     if (semanticSearch) {
       let res = await fetch(`https://search.grahamsh.com/search`, {
         method: "post",
@@ -49,10 +54,25 @@
       timeout = setTimeout(() => callback(...args), wait);
     };
   };
+  const setParam = (param, value) => {
+    $page.url.searchParams.set(param,value); 
+    history.replaceState(history.state, '', $page.url)
+
+  }
   const toggle = () => {
+    
     semanticSearch = !semanticSearch;
+    setParam("semantic", semanticSearch)
     search();
   };
+  onMount(async () => {
+    if (window) {
+      let params = new URLSearchParams(window.location.search)
+      value = params.get("query") ? params.get("query") : "";
+      semanticSearch = params.get("semantic") ? params.get("semantic") == "true" : true;
+      await search();
+    }
+  })
 </script>
 
 {#if !data.error}
