@@ -54,7 +54,7 @@ function extractRuleNumberText(document) {
   const result = {};
   const otherElements = document.querySelectorAll("div > h2");
   otherElements.forEach((element, index) => {
-    const nextRuleNumberIndex = Array.from(elements).findIndex(
+    const nextRuleNumberIndex = Array.from(otherElements).findIndex(
       (el, i) => i > index,
     );
 
@@ -168,7 +168,7 @@ function extractRuleNumberText(document) {
       textContent:
         element.textContent +
         textArray.reduce((prev, next) => {
-          if (next.type == "text") {
+          if (next.type == "text" || next.type == "box") {
             return prev + " " + next.text;
           } else {
             return prev;
