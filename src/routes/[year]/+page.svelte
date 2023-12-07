@@ -9,7 +9,10 @@
   let idx;
   let rulesArr;
   const rules = data.rules;
-  
+  import { pa } from '@accuser/svelte-plausible-analytics';
+
+  const { addEvent } = pa;
+
   if (!data.error) {
     rulesArr = Object.values(rules);
     idx = lunr(function () {
@@ -27,6 +30,7 @@
   const search = async () => {
     setParam('query', value)
     if (semanticSearch) {
+      addEvent("semantic_search")
       let res = await fetch(`https://search.grahamsh.com/search`, {
         method: "post",
         body: JSON.stringify({ query: value }),
@@ -41,6 +45,7 @@
       });
       currResults = results;
     } else {
+      addEvent("search")
       let x = idx.search(value);
       currResults = x;
     }
