@@ -27,7 +27,7 @@ jobs:
 
       - name: Commit rules
         run: |
-          git add src/lib/rules.json
+          git add .
           git config --global user.name 'GrahamSH-LLK'
           git config --global user.email 'grahamsh-llk@users.noreply.github.com'
           git commit -am "Automated rules update"
