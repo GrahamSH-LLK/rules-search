@@ -1,6 +1,6 @@
 import { JSDOM } from "jsdom";
 import fs from "fs/promises";
-const currYear = new Date().getFullYear();
+const currYear = 2022//new Date().getFullYear();
 
 const fetchAndParse = async (url) => {
   try {
@@ -36,7 +36,10 @@ const fetchAndParse = async (url) => {
     await fs.writeFile(`./src/lib/${currYear}.json`, JSON.stringify(x));
     await fs.writeFile(
       `./src/lib/${currYear}.js`,
-      "export default " + JSON.stringify(x),
+      `export default ${JSON.stringify(x)}
+
+      export const LAST_UPDATED="${new Date().toString()}"
+      `
     );
   } catch (error) {
     console.error("Error fetching or parsing the HTML:", error.message);
@@ -90,6 +93,7 @@ function extractRuleNumberText(document) {
     if (element.textContent.includes("1.") && !element.textContent.includes("1.4")) return
     result[key] = {
       name: key,
+      type: "section",
       textContent:
         element.textContent +
         textArray.reduce((prev, next) => {
@@ -161,6 +165,7 @@ function extractRuleNumberText(document) {
     // Add the result to the object
     result[key] = {
       name: key,
+      type: "rule",
       text: element.outerHTML + htmlArr.join(""),
       summary: element.textContent,
       additionalContent: textArray,

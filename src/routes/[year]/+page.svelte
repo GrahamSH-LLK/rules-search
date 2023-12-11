@@ -143,6 +143,7 @@
         <div>{@html rules[res.ref].text}</div>
       </div>
     {/each}
+    <p class="font-extralight italic">Last updated {data.lastUpdated.toLocaleString()}</p>
   </div>
 {:else}
   Error loading
