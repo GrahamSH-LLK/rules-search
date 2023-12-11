@@ -17,7 +17,7 @@
     rulesArr = Object.values(rules);
     idx = lunr(function () {
       this.ref("name");
-      this.field("text");
+      this.field("textContent")
       this.field("name");
 
       rulesArr.forEach(function (doc) {
