@@ -1,6 +1,6 @@
 import { JSDOM } from "jsdom";
 import fs from "fs/promises";
-const currYear = 2022//new Date().getFullYear();
+const currYear = new Date().getFullYear();
 
 const fetchAndParse = async (url) => {
   try {
@@ -55,7 +55,7 @@ function extractRuleNumberText(document) {
 
   // Object to store the results
   const result = {};
-  const otherElements = document.querySelectorAll("div > h2");
+  const otherElements = document.querySelectorAll("div > h2, div > h3");
   otherElements.forEach((element, index) => {
     const nextRuleNumberIndex = Array.from(otherElements).findIndex(
       (el, i) => i > index,
@@ -68,7 +68,7 @@ function extractRuleNumberText(document) {
     while (
       currentElement &&
       !currentElement.className.includes("RuleNumber") &&
-      !currentElement.querySelector("h2")
+      !currentElement.querySelector("h2") && !currentElement.querySelector("h3")
     ) {
       htmlArr.push(currentElement.outerHTML);
       textArray.push({
@@ -89,7 +89,7 @@ function extractRuleNumberText(document) {
       }
       currentElement = currentElement.nextElementSibling;
     }
-    let key = element.textContent.match(/^\d+\.\d+/)[0];
+    let key = element.textContent.match(/^\d+\.\d(\.\d)?/)[0];
     if (element.textContent.includes("1.") && !element.textContent.includes("1.4")) return
     result[key] = {
       name: key,
