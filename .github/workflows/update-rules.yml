@@ -2,7 +2,7 @@ name: Daily Node.js Job
 
 on:
   schedule:
-    - cron: "0 0 * * *" # Run every day at midnight
+    - cron: "5 10 * * *" # Run every day at 5:05 PM, latest most updates will be published
 
   workflow_dispatch:
 
