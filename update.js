@@ -95,7 +95,7 @@ function extractRuleNumberText(document) {
       name: key,
       type: "section",
       textContent:
-        element.textContent +
+        
         textArray.reduce((prev, next) => {
           if (next.type == "text") {
             return prev + " " + next.text;
@@ -171,7 +171,7 @@ function extractRuleNumberText(document) {
       additionalContent: textArray,
       evergreen: element.className.includes("Evergreen"),
       textContent:
-        element.textContent +
+        
         textArray.reduce((prev, next) => {
           if (next.type == "text" || next.type == "box") {
             return prev + " " + next.text;
