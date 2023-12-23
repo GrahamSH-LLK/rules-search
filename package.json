@@ -10,17 +10,17 @@
   "devDependencies": {
     "@accuser/svelte-plausible-analytics": "^0.5.0",
     "@sveltejs/adapter-auto": "^2.0.0",
-    "@sveltejs/kit": "^1.27.4",
+    "@sveltejs/kit": "^1.29.0",
     "@tailwindcss/typography": "^0.5.10",
     "autoprefixer": "^10.4.16",
     "postcss": "^8.4.32",
     "svelte": "^4.2.8",
-    "tailwindcss": "^3.3.5",
-    "vite": "^4.4.2"
+    "tailwindcss": "^3.3.6",
+    "vite": "^4.5.1"
   },
   "type": "module",
   "dependencies": {
-    "@sveltejs/adapter-cloudflare": "^2.3.3",
+    "@sveltejs/adapter-cloudflare": "^2.3.4",
     "@tailwindcss/forms": "^0.5.7",
     "jsdom": "^23.0.1",
     "linkedom": "^0.16.4",
