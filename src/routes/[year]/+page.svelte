@@ -1,7 +1,7 @@
 <script>
   import { MetaTags } from "svelte-meta-tags";
   //import rules from "$lib/rules.json";
-  import { page } from "$app/stores"; 
+  import { page } from "$app/stores";
 
   export let data;
   import lunr from "lunr";
@@ -9,7 +9,7 @@
   let idx;
   let rulesArr;
   const rules = data.rules;
-  import { pa } from '@accuser/svelte-plausible-analytics';
+  import { pa } from "@accuser/svelte-plausible-analytics";
 
   const { addEvent } = pa;
 
@@ -17,7 +17,7 @@
     rulesArr = Object.values(rules);
     idx = lunr(function () {
       this.ref("name");
-      this.field("textContent")
+      this.field("textContent");
       this.field("name");
 
       rulesArr.forEach(function (doc) {
@@ -28,9 +28,9 @@
   let value = "";
   let currResults = [];
   const search = async () => {
-    setParam('query', value)
+    setParam("query", value);
     if (semanticSearch) {
-      addEvent("semantic_search")
+      addEvent("semantic_search");
       let res = await fetch(`https://search.grahamsh.com/search`, {
         method: "post",
         body: JSON.stringify({ query: value }),
@@ -45,7 +45,7 @@
       });
       currResults = results;
     } else {
-      addEvent("search")
+      addEvent("search");
       let x = idx.search(value);
       currResults = x;
     }
@@ -60,24 +60,38 @@
     };
   };
   const setParam = (param, value) => {
-    $page.url.searchParams.set(param,value); 
-    history.replaceState(history.state, '', $page.url)
-
-  }
+    $page.url.searchParams.set(param, value);
+    history.replaceState(history.state, "", $page.url);
+  };
   const toggle = () => {
-    
     semanticSearch = !semanticSearch;
-    setParam("semantic", semanticSearch)
+    setParam("semantic", semanticSearch);
     search();
+  };
+  const share = async (rule) => {
+    const shareData = {
+      title: `Rule ${rule}`,
+      text: `Learn about rule ${rule}`,
+      url: `https://frctools.com/${data.year}/rule/${rule}`,
+    };
+    if (navigator.share && navigator.canShare(shareData)) {
+      navigator.share(shareData);
+    } else {
+      await navigator.clipboard.writeText(
+        `https://frctools.com/${data.year}/rule/${rule}`
+      );
+    }
   };
   onMount(async () => {
     if (window) {
-      let params = new URLSearchParams(window.location.search)
+      let params = new URLSearchParams(window.location.search);
       value = params.get("query") ? params.get("query") : "";
-      semanticSearch = params.get("semantic") ? params.get("semantic") == "true" : true;
+      semanticSearch = params.get("semantic")
+        ? params.get("semantic") == "true"
+        : true;
       await search();
     }
-  })
+  });
 </script>
 
 {#if !data.error}
@@ -133,17 +147,37 @@
     {/if}
     {#each currResults as res}
       <div class="prose max-w-full p-2 my-2 border border-gray-200 rounded-md">
-        <h3>
-          <a href={`/rule/${res.ref}`}>
-            {res.ref}
-            {#if rules[res.ref].evergreen}<span title="Evergreen rule">🌲</span
-              >{/if}
-          </a>
-        </h3>
+        <div class="flex justify-between flex-row">
+          <h3 class="m-0">
+            <a href={`/rule/${res.ref}`}>
+              {res.ref}
+              {#if rules[res.ref].evergreen}<span title="Evergreen rule"
+                  >🌲</span
+                >{/if}
+            </a>
+          </h3>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="w-6 h-6 cursor-pointer"
+            on:click={share(res.ref)}
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z"
+            />
+          </svg>
+        </div>
         <div>{@html rules[res.ref].text}</div>
       </div>
     {/each}
-    <p class="font-extralight italic">Last updated {data.lastUpdated.toLocaleString()}</p>
+    <p class="font-extralight italic">
+      Last updated {data.lastUpdated.toLocaleString()}
+    </p>
   </div>
 {:else}
   Error loading
