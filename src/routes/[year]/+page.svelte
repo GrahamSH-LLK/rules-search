@@ -149,7 +149,7 @@
       <div class="prose max-w-full p-2 my-2 border border-gray-200 rounded-md">
         <div class="flex justify-between flex-row">
           <h3 class="m-0">
-            <a href={`/rule/${res.ref}`}>
+            <a href={`/${data.year}/rule/${res.ref}`}>
               {res.ref}
               {#if rules[res.ref].evergreen}<span title="Evergreen rule"
                   >🌲</span
