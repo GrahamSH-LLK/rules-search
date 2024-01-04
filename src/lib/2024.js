@@ -1,4 +1,4 @@
 export default {}
 
-      export const LAST_UPDATED="Wed Jan 03 2024 10:19:12 GMT+0000 (Coordinated Universal Time)"
+      export const LAST_UPDATED="Thu Jan 04 2024 10:19:18 GMT+0000 (Coordinated Universal Time)"
       
