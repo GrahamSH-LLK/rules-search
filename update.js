@@ -46,7 +46,7 @@ const fetchAndParse = async (url) => {
   }
 };
 
-const url = `https://firstfrc.blob.core.windows.net/frc${currYear}/Manual/HTML/${currYear}FRCGameManual.htm`;
+const url = `https://firstfrc.blob.core.windows.net/frc${currYear}/Manual/HTML/${currYear}GameManual.htm`;
 fetchAndParse(url);
 
 function extractRuleNumberText(document) {
