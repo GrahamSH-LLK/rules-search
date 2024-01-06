@@ -55,7 +55,7 @@ function extractRuleNumberText(document) {
 
   // Object to store the results
   const result = {};
-  const otherElements = document.querySelectorAll("div > h2, div > h3");
+  const otherElements = document.querySelectorAll("div > h2");
   otherElements.forEach((element, index) => {
     const nextRuleNumberIndex = Array.from(otherElements).findIndex(
       (el, i) => i > index,
@@ -68,7 +68,7 @@ function extractRuleNumberText(document) {
     while (
       currentElement &&
       !currentElement.className.includes("RuleNumber") &&
-      !currentElement.querySelector("h2") && !currentElement.querySelector("h3")
+      !currentElement.querySelector("h2") 
     ) {
       htmlArr.push(currentElement.outerHTML);
       textArray.push({
