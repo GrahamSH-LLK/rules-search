@@ -129,7 +129,7 @@ function extractRuleNumberText(document) {
     textArray.push({ type: "text", text: element.textContent });
     while (
       currentElement &&
-      (!currentElement.className.includes("RuleNumber") && currentElement.getAttribute("align") != "center") &&
+      (!currentElement.className.includes("RuleNumber") || currentElement.getAttribute("align") == "center") &&
       !currentElement.querySelector("h2")
 
     ) {
