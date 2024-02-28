@@ -57,13 +57,10 @@ function extractRuleNumberText(document) {
   const result = {};
   const otherElements = document.querySelectorAll("div > h2");
   otherElements.forEach((element, index) => {
-    const nextRuleNumberIndex = Array.from(otherElements).findIndex(
-      (el, i) => i > index,
-    );
 
     const htmlArr = [];
     const textArray = [];
-    let currentElement = element.parentElement.nextElementSibling;
+    let currentElement = element.nextElementSibling;
     textArray.push({ type: "text", text: element.textContent });
     while (
       currentElement &&
@@ -110,9 +107,6 @@ function extractRuleNumberText(document) {
     };
 
     // Move the index to the next 'RuleNumber' element
-    if (nextRuleNumberIndex !== -1) {
-      index = nextRuleNumberIndex - 1;
-    }
   });
 
   // Iterate through the selected elements
