@@ -30,6 +30,13 @@ const fetchAndParse = async (url) => {
         image.remove();
       }
     });
+    const links = document.querySelectorAll(`a[href^="#"]`)
+    links.forEach((link) => {
+      let slug = link.getAttribute('href').split('#')[1];
+      if (slug.match(/^([a-zA-Z])(\d{3})$/)) {
+        link.setAttribute('href', `https://frctools.com/${currYear}/rule/${slug}`)
+      }
+    })
 
     const x = extractRuleNumberText(document);
     // Access and manipulate the DOM as needed
