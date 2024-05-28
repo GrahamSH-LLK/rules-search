@@ -9,7 +9,7 @@
   },
   "devDependencies": {
     "@accuser/svelte-plausible-analytics": "^1.0.0",
-    "@sveltejs/kit": "^2.5.7",
+    "@sveltejs/kit": "^2.5.10",
     "@sveltejs/vite-plugin-svelte": "^3.1.0",
     "@tailwindcss/typography": "^0.5.13",
     "autoprefixer": "^10.4.19",
