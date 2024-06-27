@@ -24,7 +24,7 @@
     "@sveltejs/adapter-cloudflare": "^4.4.0",
     "@tailwindcss/forms": "^0.5.7",
     "jsdom": "^24.0.0",
-    "linkedom": "^0.16.4",
+    "linkedom": "^0.18.4",
     "lunr": "^2.3.9",
     "svelte-meta-tags": "^3.1.2"
   }
