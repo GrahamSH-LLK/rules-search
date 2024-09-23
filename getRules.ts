@@ -112,11 +112,11 @@ export const getRulesCorpus = (document: Document) => {
     const additionalContent: AdditionalContent[] = [];
     const htmlContent: string[] = [];
     const ruleSelector =
-      `:has(h2), [class*="RuleNumber"]` + (section
+      `:has(h2), h2, [class*="RuleNumber"]` + (section
         ? ``
         : `:not([align="center"])`);
     if (!rule.nextElementSibling) return
-    traverseUntilSelector(ruleSelector, rule.nextElementSibling, (element: Element) => {
+    traverseUntilSelector(ruleSelector, rule, (element: Element) => {
       htmlContent.push(element.outerHTML);
       additionalContent.push({
         text: element.textContent,
@@ -155,12 +155,21 @@ export const getRulesCorpus = (document: Document) => {
   return output;
 };
 
+/*
+ * Recursively traverses DOM elements until a matching selector is found.
+ * @param {string} selector The CSS selector to match.
+ * @param {Element} element The element to start traversing from.
+ * @param {Function} callback The function to call for each matching element. **Is** called on passed in element.
+ * @returns {void}
+ * @private 
+*/
 const traverseUntilSelector = (
   selector: string,
   element: Element,
   callback: Function
 ) => {
-  let currentElement = element;
+  callback(element);
+  let currentElement = element.nextElementSibling;
   while (currentElement && !currentElement.matches(selector)) {
     callback(currentElement);
     if (!currentElement.nextElementSibling) break;
@@ -178,6 +187,15 @@ export const scrapeRules = async () => {
   const rules = await getRulesCorpus(document);
   console.log("Scraping done. Writing to file...");
   await fs.writeFile(`./src/lib/${currYear}.json`, JSON.stringify(rules));
+  await fs.writeFile(
+    `./src/lib/${currYear}.js`,
+    `export default ${JSON.stringify(rules)}
+
+
+    export const LAST_UPDATED="${new Date().toString()}" // this is a bodge and a half
+    `
+  );
+
 
 };
 await scrapeRules();
