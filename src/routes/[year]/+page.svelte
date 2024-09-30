@@ -8,29 +8,16 @@
   import { onMount } from "svelte";
   let idx;
   let rulesArr;
-  const rules = data.rules;
   import { pa } from "@accuser/svelte-plausible-analytics";
 
   const { addEvent } = pa;
 
-  if (!data.error) {
-    rulesArr = Object.values(rules);
-    idx = lunr(function () {
-      this.ref("name");
-      this.field("textContent");
-      this.field("name");
-
-      rulesArr.forEach(function (doc) {
-        this.add(doc);
-      }, this);
-    });
-  }
   let value = "";
   let currResults = [];
   const search = async () => {
     setParam("query", value);
     if (semanticSearch) {
-      addEvent("semantic_search");
+      //addEvent("semantic_search");
     }
       let res = await fetch(`/api/search?year=${data.year}&query=${value}&semantic=${semanticSearch}`, {
         method: "get",
@@ -76,7 +63,9 @@
     }
   };
   onMount(async () => {
+    console.log('onMount')
     if (window) {
+      console.log('hi')
       let params = new URLSearchParams(window.location.search);
       value = params.get("query") ? params.get("query") : "";
       semanticSearch = params.get("semantic")
@@ -169,7 +158,7 @@
       </div>
     {/each}
     <p class="font-extralight italic">
-      Last updated {data.lastUpdated.toLocaleString()}
+      <!--Last updated {data.lastUpdated.toLocaleString()}-->
     </p>
   </div>
 {:else}
