@@ -23,7 +23,7 @@ export async function GET({ fetch, setHeaders }) {
     `;
     for (let rule of Object.keys(year.rules)) {
       rulesStr += `<url>
-      <loc>${site}/${year.year}/${rule}</loc>
+      <loc>${site}/${year.year}/rule/${rule}</loc>
       <priority>0.6</priority>
       <changefreq>monthly</changefreq>
       </url>
