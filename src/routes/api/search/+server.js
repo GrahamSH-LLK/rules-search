@@ -1,26 +1,24 @@
-import lunr from "lunr";
+import { MeiliSearch } from "meilisearch";
 import { json } from "@sveltejs/kit";
 
 export async function GET({ url }) {
+  const MEILI_READ_KEY = `2db41b6a1ce3e0daf62e36d67f996e60f41a07807588971a050d7bfb74df5efe`;
   let query = url.searchParams.get("query") ?? "";
   let year = url.searchParams.get("year") ?? new Date().getFullYear();
-  const rules = (await import(`../../../lib/${year}.js`)).default;
-  const rulesArr = Object.values(rules);
-
-  const idx = lunr(function () {
-    this.ref("name");
-    this.field("text");
-    this.field("name");
-
-    rulesArr.forEach(function (doc) {
-      this.add(doc);
-    }, this);
+  let semantic = url.searchParams.get("semantic") == "true";
+  const client = new MeiliSearch({
+    host: "https://meilisearch.frctools.com",
+    apiKey: MEILI_READ_KEY,
   });
-
-  let x = idx.search(query);
-  return json(
-    x.map((x) => {
-      return { name: x.ref, text: rules[x.ref].text };
-    }),
-  );
+  const indexName = `rules-${year}`;
+  const index = await client.index(indexName);
+  let options = {};
+  if (semantic) {
+    options["hybrid"] = {
+      embedder: "default",
+      semanticRatio: 0.9,
+    };
+  }
+  const searchResults = await index.search(query, options);
+  return json(searchResults);
 }

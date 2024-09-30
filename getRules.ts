@@ -1,5 +1,6 @@
 import { JSDOM } from "jsdom";
 import fs from "fs/promises";
+import { MeiliSearch } from "meilisearch";
 export const ruleRegex = /^([a-zA-Z])(\d{3})$/;
 export const getDocument = async (currYear: number) => {
   const res = await fetch(
@@ -112,10 +113,9 @@ export const getRulesCorpus = (document: Document) => {
     const additionalContent: AdditionalContent[] = [];
     const htmlContent: string[] = [];
     const ruleSelector =
-      `:has(h2), h2, [class*="RuleNumber"]` + (section
-        ? ``
-        : `:not([align="center"])`);
-    if (!rule.nextElementSibling) return
+      `:has(h2), h2, [class*="RuleNumber"]` +
+      (section ? `` : `:not([align="center"])`);
+    if (!rule.nextElementSibling) return;
     traverseUntilSelector(ruleSelector, rule, (element: Element) => {
       htmlContent.push(element.outerHTML);
       additionalContent.push({
@@ -135,22 +135,26 @@ export const getRulesCorpus = (document: Document) => {
         } as AdditionalContentImage);
       }
     });
-    const key = (section ? rule?.textContent?.match(/^\d+\.\d(\.\d)?/)?.[0] :[...rule.querySelectorAll("a")].find((element) => {
-        return element.getAttribute("name")?.match(ruleRegex);
-  
-    })?.getAttribute("name")) ?? `FIXME${Math.floor(Math.random() * 100)}`;
+    const key =
+      (section
+        ? rule?.textContent?.match(/^\d+\.\d(\.\d)?/)?.[0]
+        : [...rule.querySelectorAll("a")]
+            .find((element) => {
+              return element.getAttribute("name")?.match(ruleRegex);
+            })
+            ?.getAttribute("name")) ??
+      `FIXME${Math.floor(Math.random() * 100)}`;
 
     output[key] = {
-        name: key,
-        type: section? Type.Section : Type.Rule,
-        text: htmlContent.join("\n"),
-        summary: rule.textContent || '',
-        additionalContent,
-        evergreen: false,
-        textContent: rule?.textContent || '',
-      };
-    }
-
+      name: key,
+      type: section ? Type.Section : Type.Rule,
+      text: htmlContent.join("\n"),
+      summary: rule.textContent || "",
+      additionalContent,
+      evergreen: false,
+      textContent: rule?.textContent || "",
+    };
+  }
 
   return output;
 };
@@ -161,8 +165,8 @@ export const getRulesCorpus = (document: Document) => {
  * @param {Element} element The element to start traversing from.
  * @param {Function} callback The function to call for each matching element. **Is** called on passed in element.
  * @returns {void}
- * @private 
-*/
+ * @private
+ */
 const traverseUntilSelector = (
   selector: string,
   element: Element,
@@ -186,6 +190,7 @@ export const scrapeRules = async () => {
   }
   const rules = await getRulesCorpus(document);
   console.log("Scraping done. Writing to file...");
+
   await fs.writeFile(`./src/lib/${currYear}.json`, JSON.stringify(rules));
   await fs.writeFile(
     `./src/lib/${currYear}.js`,
@@ -195,7 +200,37 @@ export const scrapeRules = async () => {
     export const LAST_UPDATED="${new Date().toString()}" // this is a bodge and a half
     `
   );
+  const client = new MeiliSearch({
+    host: "http://meilisearch.frctools.com",
+    apiKey: process.env.MEILI_WRITE_KEY,
 
+  });
 
+  if (!rules) {
+    return;
+  }
+  //await client.deleteIndexIfExists("rules-2024")
+  const index = `rules-${currYear}`;
+  const idx = client.index(index);
+  const attributes = await idx.getFilterableAttributes();
+  const wantedAttributes = ["text", "name", "evergreen", "type", "textContent"];
+  for (const attribute of wantedAttributes) {
+    if (!attributes.includes(attribute)) {
+      await idx.updateFilterableAttributes(wantedAttributes);
+      break;
+    }
+  }
+  client
+    .index(index)
+    .addDocuments(Object.values(rules).map(
+      (rule) => {
+        return {
+         ...rule,
+          id: btoa(rule.name).replaceAll("=",""),
+        };
+      }
+    ), {primaryKey: 'id'})
+    .then((res) => console.log(res))
+    .catch((err) => console.error(err));
 };
 await scrapeRules();
