@@ -4,10 +4,7 @@
   import { page } from "$app/stores";
   
   export let data;
-  import lunr from "lunr";
   import { onMount } from "svelte";
-  let idx;
-  let rulesArr;
   import { pa } from "@accuser/svelte-plausible-analytics";
 
   const { addEvent } = pa;
@@ -63,9 +60,7 @@
     }
   };
   onMount(async () => {
-    console.log('onMount')
     if (window) {
-      console.log('hi')
       let params = new URLSearchParams(window.location.search);
       value = params.get("query") ? params.get("query") : "";
       semanticSearch = params.get("semantic")
