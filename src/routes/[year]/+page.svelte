@@ -2,7 +2,7 @@
   import { MetaTags } from "svelte-meta-tags";
   //import rules from "$lib/rules.json";
   import { page } from "$app/stores";
-
+  
   export let data;
   import lunr from "lunr";
   import { onMount } from "svelte";
@@ -31,24 +31,17 @@
     setParam("query", value);
     if (semanticSearch) {
       addEvent("semantic_search");
-      let res = await fetch(`https://search.grahamsh.com/search`, {
-        method: "post",
-        body: JSON.stringify({ query: value }),
+    }
+      let res = await fetch(`/api/search?year=${data.year}&query=${value}&semantic=${semanticSearch}`, {
+        method: "get",
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
         },
       });
       let json = await res.json();
-      let results = json.data.map((x) => {
-        return { ...rules[x.text], ref: x.text };
-      });
-      currResults = results;
-    } else {
-      addEvent("search");
-      let x = idx.search(value);
-      currResults = x;
-    }
+      currResults = json.hits;
+    
   };
   let semanticSearch = data.year == new Date().getFullYear();
   const debounce = (callback, wait = 300) => {
@@ -149,9 +142,9 @@
       <div class="prose max-w-full p-2 my-2 border border-gray-200 rounded-md">
         <div class="flex justify-between flex-row">
           <h3 class="m-0">
-            <a href={`/${data.year}/rule/${res.ref}`}>
-              {res.ref}
-              {#if rules[res.ref].evergreen}<span title="Evergreen rule"
+            <a href={`/${data.year}/rule/${res.name}`}>
+              {res.name}
+              {#if res.evergreen}<span title="Evergreen rule"
                   >🌲</span
                 >{/if}
             </a>
@@ -163,7 +156,7 @@
             stroke-width="1.5"
             stroke="currentColor"
             class="w-6 h-6 cursor-pointer"
-            on:click={share(res.ref)}
+            on:click={share(res.name)}
           >
             <path
               stroke-linecap="round"
@@ -172,7 +165,7 @@
             />
           </svg>
         </div>
-        <div>{@html rules[res.ref].text}</div>
+        <div>{@html res.text}</div>
       </div>
     {/each}
     <p class="font-extralight italic">

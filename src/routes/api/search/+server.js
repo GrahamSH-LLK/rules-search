@@ -16,7 +16,7 @@ export async function GET({ url }) {
   if (semantic) {
     options["hybrid"] = {
       embedder: "default",
-      semanticRatio: 0.9,
+      semanticRatio: 0.8,
     };
   }
   const searchResults = await index.search(query, options);
