@@ -23,9 +23,11 @@
     "@sentry/sveltekit": "^8.9.2",
     "@sveltejs/adapter-cloudflare": "^4.4.0",
     "@tailwindcss/forms": "^0.5.7",
-    "jsdom": "^24.0.0",
+    "@types/jsdom": "^21.1.7",
+    "jsdom": "^23.2.0",
     "linkedom": "^0.16.4",
     "lunr": "^2.3.9",
+    "meilisearch": "^0.42.0",
     "svelte-meta-tags": "^3.1.2"
   }
 }
