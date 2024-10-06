@@ -25,7 +25,7 @@ export const fixImages = (currYear: number, document: Document) => {
     if (currentSrc) {
       // Prefix the image URL with the specified prefix
       const newSrc =
-        `https://firstfrc.blob.core.windows.net/frc${currYear}/Manual/HTML/` +
+        `https://ftc-resources.firstinspires.org/file/ftc/game/cm-html/` +
         currentSrc;
       image.setAttribute("src", newSrc);
     }
@@ -38,7 +38,7 @@ export const fixRuleLinks = (currYear: number, document: Document) => {
     if (slug?.match(ruleRegex)) {
       link.setAttribute(
         "href",
-        `https://frctools.com/${currYear}/rule/${slug}`
+        `https://ftc.rules-search.pages.dev/${currYear}/rule/${slug}`
       );
     }
   });
