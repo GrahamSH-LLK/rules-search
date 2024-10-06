@@ -8,7 +8,7 @@ export const load = async ({ params }) => {
     host: "https://meilisearch.frctools.com",
     apiKey: MEILI_READ_KEY,
   });
-  const indexName = `rules-${year}`;
+  const indexName = `rules-ftc-${year}`;
   const index = await client.index(indexName);
   const searchResults = await index.search('', {
     filter: `name = '${query}'`,

@@ -2,30 +2,42 @@
   import { MetaTags } from "svelte-meta-tags";
   //import rules from "$lib/rules.json";
   import { page } from "$app/stores";
-  
+
   export let data;
   import { onMount } from "svelte";
   import { pa } from "@accuser/svelte-plausible-analytics";
 
   const { addEvent } = pa;
 
-  let value = "";
+  let searchValue = "";
+  let filter = "";
   let currResults = [];
+  let error = {};
   const search = async () => {
-    setParam("query", value);
+    setParam("query", searchValue);
+    setParam("filter", filter);
     if (semanticSearch) {
       //addEvent("semantic_search");
     }
-      let res = await fetch(`/api/search?year=${data.year}&query=${value}&semantic=${semanticSearch}`, {
-        method: "get",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-      });
+    try {
+      let res = await fetch(
+        `/api/search?year=${data.year}&query=${searchValue}&semantic=${semanticSearch}&filter=${filter}`,
+        {
+          method: "get",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      );
       let json = await res.json();
+
       currResults = json.hits;
-    
+    } catch (e) {
+      currResults = [];
+      console.log('hi', e)
+
+    }
   };
   let semanticSearch = data.year == new Date().getFullYear();
   const debounce = (callback, wait = 300) => {
@@ -62,7 +74,8 @@
   onMount(async () => {
     if (window) {
       let params = new URLSearchParams(window.location.search);
-      value = params.get("query") ? params.get("query") : "";
+      searchValue = params.get("query") ? params.get("query") : "";
+      filter = params.get("filter") ? params.get("filter") : "";
       semanticSearch = params.get("semantic")
         ? params.get("semantic") == "true"
         : true;
@@ -107,11 +120,19 @@
         <div class="relative w-full">
           <input
             type="search"
-            id="search-dropdown"
+            id="search"
             class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-e-lg border-s-gray-50 border-s-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-s-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500"
             placeholder="Search anything to find a relevant rule"
             required
-            bind:value
+            bind:value={searchValue}
+            on:input={debounce(search)}
+          />
+          <input
+            type="text"
+            id="filter"
+            class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-e-lg border-s-gray-50 border-s-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-s-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500"
+            placeholder=""
+            bind:value={filter}
             on:input={debounce(search)}
           />
         </div>
@@ -128,9 +149,7 @@
           <h3 class="m-0">
             <a href={`/${data.year}/rule/${res.name}`}>
               {res.name}
-              {#if res.evergreen}<span title="Evergreen rule"
-                  >🌲</span
-                >{/if}
+              {#if res.evergreen}<span title="Evergreen rule">🌲</span>{/if}
             </a>
           </h3>
           <svg

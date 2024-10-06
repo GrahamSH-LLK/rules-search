@@ -4,7 +4,7 @@ import { MeiliSearch } from "meilisearch";
 export const ruleRegex = /^([a-zA-Z])(\d{3})$/;
 export const getDocument = async (currYear: number) => {
   const res = await fetch(
-    `https://firstfrc.blob.core.windows.net/frc${currYear}/Manual/HTML/${currYear}GameManual.htm`
+    `https://ftc-resources.firstinspires.org/file/ftc/game/cm-html`
   );
   const dec = new TextDecoder("windows-1252"); // word exports are in windows-1252 text format * just because*
   const arrBuffer = await res.arrayBuffer();
@@ -210,8 +210,14 @@ export const scrapeRules = async () => {
     return;
   }
   //await client.deleteIndexIfExists("rules-2024")
-  const index = `rules-${currYear}`;
-  const idx = client.index(index);
+  const index = `rules-ftc-${currYear}`;
+  let idx = client.index(index);
+  if (!idx.createdAt) {
+    await client.createIndex(index, {
+      primaryKey: "id",
+    });
+    idx = client.index(index);
+  }
   const attributes = await idx.getFilterableAttributes();
   const wantedAttributes = ["text", "name", "evergreen", "type", "textContent"];
   for (const attribute of wantedAttributes) {
