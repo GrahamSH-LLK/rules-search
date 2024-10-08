@@ -23,7 +23,7 @@
   />
   <div>
   </div>
-  <div class="prose">
+  <div class="prose w-full max-w-[revert] p-2">
     <h1>
       {data.rule}
       {#if data.evergreen}🌲{/if}
