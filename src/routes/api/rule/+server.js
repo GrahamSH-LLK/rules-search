@@ -17,7 +17,11 @@ export async function GET({ url }) {
     return json({ error: "no such rule" });
   }
   const rule = searchResults.hits[0];
-  return json(rule);
+  return json(rule, {
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+    }
+  });
 
 
 }

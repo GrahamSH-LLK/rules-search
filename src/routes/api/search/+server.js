@@ -20,5 +20,9 @@ export async function GET({ url }) {
     };
   }
   const searchResults = await index.search(query, options);
-  return json(searchResults);
+  return json(searchResults, {
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+    }
+  });
 }
