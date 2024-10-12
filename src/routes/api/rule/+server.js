@@ -25,3 +25,13 @@ export async function GET({ url }) {
 
 
 }
+export async function OPTIONS({}) {
+  return new Response('', {
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET",
+      "Access-Control-Allow-Headers": "Content-Type",
+    },
+  });
+
+}
