@@ -1,0 +1,11 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+:root {
+  --ui-header-height: calc(var(--spacing) * 16);
+}
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --font-display: "Bricolage Grotesque", sans-serif;
+}

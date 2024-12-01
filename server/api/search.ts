@@ -1,7 +1,8 @@
 import { MeiliSearch } from "meilisearch";
-import { json } from "@sveltejs/kit";
+import { Rule } from "../utils";
 
-export async function GET({ url }) {
+export default defineEventHandler(async (event) => {
+  const url = getRequestURL(event);
   const MEILI_READ_KEY = `2db41b6a1ce3e0daf62e36d67f996e60f41a07807588971a050d7bfb74df5efe`;
   let query = url.searchParams.get("query") ?? "";
   let year = url.searchParams.get("year") ?? new Date().getFullYear();
@@ -12,21 +13,18 @@ export async function GET({ url }) {
   });
   const indexName = `rules-${year}`;
   const index = await client.index(indexName);
-  let options = {};
+  let options: any = {};
   if (semantic) {
     options["hybrid"] = {
       embedder: "default",
       semanticRatio: 0.8,
     };
   }
-  const searchResults = await index.search(query, options);
-  return json(searchResults, {
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-    }
-  });
-}
-
+ 
+  const searchResults = await index.search<Rule>(query, options);
+  return searchResults;
+});
+/*
 export async function OPTIONS({}) {
   return new Response('', {
     headers: {
@@ -36,4 +34,4 @@ export async function OPTIONS({}) {
     },
   });
 
-}
+}*/
