@@ -5,8 +5,11 @@
     <div
       class="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl flex items-center justify-between gap-3 h-[var(--ui-header-height)]"
     >
-      <h1 class="font-bold font-display text-3xl text-blue-950">FRCTools</h1>
-      <div>
+      <NuxtLink
+        class="font-bold font-display text-3xl text-blue-950 flex justify-center items-center gap-2"
+        to="/"
+        >FRCTools</NuxtLink>
+      <div v-if="!props.hideYear">
         <USelectMenu :items="validYears" v-model="year">
           <template #leading="{ modelValue, ui }">
             <span v-if="modelValue" class="size-5 text-center">
@@ -23,11 +26,13 @@
     </div>
   </header>
 </template>
-<script setup>
+<script setup lang="ts">
 const validYears = useYearsNav();
 const year = defineModel();
-watch(year, async (value)=> {
-   await navigateTo(`/${value.value}`)
-
-})
+watch(year, async (value) => {
+  await navigateTo(`/${value.value}`);
+});
+const props = defineProps<{
+  hideYear?: boolean;
+}>();
 </script>

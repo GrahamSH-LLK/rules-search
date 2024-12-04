@@ -44,9 +44,9 @@
         <UCard v-for="result of resultData.hits" :key="result.id">
           <template #header>
             <div class="flex justify-between">
-              <h2 class="font-bold text-xl">
+              <NuxtLink class="font-bold text-xl" :to="`/${year}/${result.name}`">
                 {{ upperFirst(result.type) }} {{ result.name }}
-              </h2>
+              </NuxtLink>
               <UButton
                 size="sm"
                 variant="outline"
@@ -65,15 +65,16 @@
 <script setup>
 import { upperFirst } from "scule";
 import { watch } from "vue";
+import {useRouteQuery}  from "@vueuse/router"
 const route = useRoute();
 const validYears = useYears();
 if (!validYears.includes(route.params.year)) {
   await navigateTo(`/${validYears[0]}`);
 }
-const query = ref("");
-const semanticEnabled = ref(true);
+const query = useRouteQuery("query", "");
+const semanticEnabled = useRouteQuery("semantic", true);
 const year = ref(route.params.year);
-const loading = ref(true);
+const loading = ref(false);
 
 const yearNav = computed({
   get: () =>
@@ -99,6 +100,7 @@ const resultData = ref(data);
 resultData.value = data.value;
 const refresh = async (value) => {
   loading.value = true;
+
   resultData.value = await $fetch("/api/search", {
     query: {
       year: year.value,
@@ -129,6 +131,10 @@ watch(query, refresh);
 watch(semanticEnabled, refresh);
 </script>
 <style>
+html {
+   scrollbar-gutter: stable;
+
+}
 .prose > *:is([style*="text-indent:-.25in"]) {
   text-indent: revert !important;
 }

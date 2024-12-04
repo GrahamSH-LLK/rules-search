@@ -10,9 +10,16 @@ export default defineNuxtConfig({
     },
   },
   scalar: {
-   spec: {
-      url: '/_openapi.json',
+    spec: {
+      url: "/_openapi.json",
     },
+  },
+  app: {
+   head: {
+     link: [
+       { rel: 'icon', type: 'image/x-icon', href: '/logo.svg' }
+     ]
+   }
+ }
 
-  }
 });
