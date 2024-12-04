@@ -55,7 +55,7 @@
               ></UButton>
             </div>
           </template>
-          <div class="prose max-w-7/8" v-html="result.text"></div>
+          <div class="prose max-w-7/8 dark:prose-invert" v-html="result.text"></div>
         </UCard>
       </div>
     </UContainer>
