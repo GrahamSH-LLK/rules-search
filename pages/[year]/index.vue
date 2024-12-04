@@ -15,12 +15,36 @@
           size="xl"
         />
       </div>
+      <div
+        v-if="!resultData.hits.length || loading"
+        class="flex justify-center items-center"
+      >
+        <div
+          class="flex flex-col items-center justify-center flex-1 px-6 py-14 sm:px-14"
+        >
+          <UIcon
+            name="heroicons:circle-stack-20-solid"
+            class="size-10 mx-auto text-gray-400 dark:text-gray-500 mb-4"
+            v-if="!loading"
+          ></UIcon>
+          <UIcon
+            name="heroicons:arrow-path-20-solid"
+            class="size-10 mx-auto text-gray-400 dark:text-gray-500 mb-4 animate-spin"
+            v-else
+          ></UIcon>
 
-      <div class="flex gap-4 flex-col">
+          <p class="text-sm text-center text-gray-900 dark:text-white">
+            <span v-if="!query.length">Nothing yet. Search something!</span>
+            <span v-else-if="!loading" >No results found for "{{ query }}".</span>
+            <span v-else >Loading...</span>
+          </p>
+        </div>
+      </div>
+      <div class="flex gap-4 flex-col" v-if="!loading">
         <UCard v-for="result of resultData.hits" :key="result.id">
           <template #header>
             <div class="flex justify-between">
-              <h2 class=" font-bold text-xl">
+              <h2 class="font-bold text-xl">
                 {{ upperFirst(result.type) }} {{ result.name }}
               </h2>
               <UButton
@@ -49,6 +73,7 @@ if (!validYears.includes(route.params.year)) {
 const query = ref("");
 const semanticEnabled = ref(true);
 const year = ref(route.params.year);
+const loading = ref(true);
 
 const yearNav = computed({
   get: () =>
@@ -66,15 +91,22 @@ const { data, status, error, clear } = await useFetch("/api/search", {
     query: query.value,
     semantic: semanticEnabled.value,
   },
+  onResponse() {
+    loading.value = false;
+  },
 });
 const resultData = ref(data);
 resultData.value = data.value;
 const refresh = async (value) => {
+  loading.value = true;
   resultData.value = await $fetch("/api/search", {
     query: {
       year: year.value,
       query: query.value,
       semantic: semanticEnabled.value,
+    },
+    onResponse() {
+      loading.value = false;
     },
   });
 };
@@ -98,7 +130,6 @@ watch(semanticEnabled, refresh);
 </script>
 <style>
 .prose > *:is([style*="text-indent:-.25in"]) {
-   text-indent: revert !important;
+  text-indent: revert !important;
 }
-
 </style>
