@@ -9,3 +9,8 @@
 @theme {
   --font-display: "Bricolage Grotesque", sans-serif;
 }
+
+div:is([style*="margin-left:1.0in;margin-right:1.0in"]):has(.BlueBox) {
+   margin-left: 0!important;
+   margin-right: 0!important;
+}
