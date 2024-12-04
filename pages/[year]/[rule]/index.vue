@@ -4,7 +4,7 @@
     <UContainer class="flex flex-col gap-4 mt-4" v-if="!error">
       <UBreadcrumb :items="items" />
 
-      <div v-html="data.text" class="prose max-w-full"></div
+      <div v-html="data.text" class="prose max-w-full dark:prose-invert"></div
     ></UContainer>
     <UContainer class="flex flex-col gap-4 mt-4" v-else>
       <div
