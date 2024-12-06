@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
   if (semantic) {
     options["hybrid"] = {
       embedder: "default",
-      semanticRatio: 0.8,
+      semanticRatio: 0.5,
     };
   }
  

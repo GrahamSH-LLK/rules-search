@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Nav v-model="yearNav" page="Search"/>
+    <Nav v-model="yearNav" page="Search" />
     <UContainer class="pt-4 flex flex-col gap-4">
       <div class="flex justify-between gap-2 items-center">
         <UInput
@@ -34,9 +34,18 @@
           ></UIcon>
 
           <p class="text-sm text-center text-gray-900 dark:text-white">
-            <span v-if="!query.length">Nothing yet. Search something!</span>
-            <span v-else-if="!loading" >No results found for "{{ query }}".</span>
-            <span v-else >Loading...</span>
+            <span v-if="!query.length"
+              >Nothing yet.
+              <span
+                class="bold text-blue-400 cursor-pointer"
+                @click="randomSearch"
+                >Search something!</span
+              ></span
+            >
+            <span v-else-if="!loading"
+              >No results found for "{{ query }}".</span
+            >
+            <span v-else>Loading...</span>
           </p>
         </div>
       </div>
@@ -44,7 +53,10 @@
         <UCard v-for="result of resultData.hits" :key="result.id">
           <template #header>
             <div class="flex justify-between">
-              <NuxtLink class="font-bold text-xl" :to="`/${year}/${result.name}`">
+              <NuxtLink
+                class="font-bold text-xl"
+                :to="`/${year}/${result.name}`"
+              >
                 {{ upperFirst(result.type) }} {{ result.name }}
               </NuxtLink>
               <UButton
@@ -55,7 +67,10 @@
               ></UButton>
             </div>
           </template>
-          <div class="prose max-w-full dark:prose-invert overflow-x-auto" v-html="result.text"></div>
+          <div
+            class="prose max-w-full dark:prose-invert overflow-x-auto"
+            v-html="result.text"
+          ></div>
         </UCard>
       </div>
     </UContainer>
@@ -65,7 +80,7 @@
 <script setup>
 import { upperFirst } from "scule";
 import { watch } from "vue";
-import {useRouteQuery}  from "@vueuse/router"
+import { useRouteQuery } from "@vueuse/router";
 const route = useRoute();
 const validYears = useYears();
 if (!validYears.includes(route.params.year)) {
@@ -99,7 +114,6 @@ const { data, status, error, clear } = await useFetch("/api/search", {
 const resultData = ref(data);
 resultData.value = data.value;
 const refresh = async (value) => {
-
   loading.value = true;
 
   resultData.value = await $fetch("/api/search", {
@@ -128,18 +142,28 @@ const share = async (result) => {
     );
   }
 };
-
+const randomSearches = [
+   "batteries",
+   "wire gauge",
+   "scoring",
+   "wiring",
+   "event rules",
+   "alliance selection",
+   "extension limits",
+   "game piece"
+]
+const randomSearch = () => {
+   query.value = randomSearches[Math.floor(Math.random() * randomSearches.length - 1)];
+};
 watch(query, refresh);
 watch(semanticEnabled, refresh);
 useSeoMeta({
-   title: `Search the manual`
-})
-
+  title: `Search the manual`,
+});
 </script>
 <style>
 html {
-   scrollbar-gutter: stable;
-
+  scrollbar-gutter: stable;
 }
 .prose > *:is([style*="text-indent:-.25in"]) {
   text-indent: revert !important;
