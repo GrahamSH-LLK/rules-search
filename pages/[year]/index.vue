@@ -99,6 +99,7 @@ const { data, status, error, clear } = await useFetch("/api/search", {
 const resultData = ref(data);
 resultData.value = data.value;
 const refresh = async (value) => {
+
   loading.value = true;
 
   resultData.value = await $fetch("/api/search", {
@@ -108,6 +109,7 @@ const refresh = async (value) => {
       semantic: semanticEnabled.value,
     },
     onResponse() {
+      useTrackEvent(semanticEnabled.value ? "semantic_search" : "search");
       loading.value = false;
     },
   });

@@ -1,5 +1,5 @@
 {
-  "name": "nuxt-app",
+  "name": "frctools",
   "private": true,
   "type": "module",
   "scripts": {
@@ -7,16 +7,21 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "rules:update": "tsx getRules.ts"
   },
   "dependencies": {
     "@nuxt/fonts": "^0.10.2",
     "@nuxt/ui": "^3.0.0-alpha.9",
+    "@nuxtjs/plausible": "^1.2.0",
     "@scalar/nuxt": "^0.2.150",
+    "@types/jsdom": "^21.1.7",
     "@vueuse/router": "^12.0.0",
+    "jsdom": "^25.0.1",
     "meilisearch": "^0.45.0",
     "nuxt": "^3.14.1592",
     "scule": "^1.3.0",
+    "tsx": "^4.19.2",
     "vue": "latest",
     "vue-router": "latest"
   },
