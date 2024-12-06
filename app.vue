@@ -27,11 +27,16 @@ onMounted(() => {
             e?.stopPropagation();
             localStorage.setItem("bingo-25-shown", true);
             await navigateTo("/bingo");
-
           },
         },
       ],
     });
   }
+});
+useSeoMeta({
+  titleTemplate: (x) => (x ? `${x} | FRCTools` : `FRCTools`),
+  ogTitle: "FRCTools",
+  description: "Search the FRC Manual",
+  ogDescription: "Search the FRC Manual",
 });
 </script>

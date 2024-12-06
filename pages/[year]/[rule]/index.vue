@@ -70,6 +70,9 @@ const items = computed(() => {
     ];
   },
 );
+useSeoMeta({
+   title: `Search`
+})
 </script>
 
 <style></style>

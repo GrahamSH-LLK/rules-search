@@ -150,4 +150,9 @@ watch(hasWon, () => {
 
    }
 })
+useSeoMeta({
+   title: `Bingo`,
+   description: `Play kickoff BINGO`,
+   ogDescription: `Play kickoff BINGO`
+});
 </script>

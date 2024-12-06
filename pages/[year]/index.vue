@@ -131,6 +131,10 @@ const share = async (result) => {
 
 watch(query, refresh);
 watch(semanticEnabled, refresh);
+useSeoMeta({
+   title: `Search the manual`
+})
+
 </script>
 <style>
 html {
