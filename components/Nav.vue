@@ -5,10 +5,11 @@
     <div
       class="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl flex items-center justify-between gap-3 h-[var(--ui-header-height)]"
     >
-      <NuxtLink
+      <div class="flex gap-2"><NuxtLink
         class="font-bold font-display text-3xl text-blue-950 dark:text-white flex justify-center items-center gap-2"
         to="/"
-        >FRCTools</NuxtLink>
+        >FRCTools {{ props.page }}</NuxtLink>
+      <UButton square variant="outline" to="/bingo"><UIcon name="solar:gamepad-old-bold-duotone" class=" size-6"></UIcon></UButton></div>
       <div v-if="!props.hideYear">
         <USelectMenu :items="validYears" v-model="year">
           <template #leading="{ modelValue, ui }">
@@ -34,5 +35,6 @@ watch(year, async (value) => {
 });
 const props = defineProps<{
   hideYear?: boolean;
+  page?: string;
 }>();
 </script>

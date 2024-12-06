@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Nav hide-year />
+    <Nav hide-year page="Bingo"/>
     <UContainer class="mt-4">
       <div class="flex flex-wrap gap-2 overflow-x-auto p-2">
         <div

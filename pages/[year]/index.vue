@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Nav v-model="yearNav" />
+    <Nav v-model="yearNav" page="Search"/>
     <UContainer class="pt-4 flex flex-col gap-4">
       <div class="flex justify-between gap-2 items-center">
         <UInput

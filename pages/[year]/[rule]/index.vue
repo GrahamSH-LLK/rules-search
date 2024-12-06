@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Nav v-model="yearNav" />
+    <Nav v-model="yearNav" page="Search" />
     <UContainer class="flex flex-col gap-4 mt-4" v-if="!error">
       <UBreadcrumb :items="items" />
 
