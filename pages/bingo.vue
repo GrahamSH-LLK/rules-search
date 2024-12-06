@@ -20,7 +20,6 @@
             <span>{{ card }}</span>
           </UCard>
         </div>
-        {{ hasWon }}
       </div>
       <div class="italic flex w-full justify-center">
         a frctools project - check out our rules search at
