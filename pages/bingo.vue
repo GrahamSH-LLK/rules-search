@@ -1,6 +1,10 @@
 <template>
-  <div>
+  <div >
     <Nav hide-year page="Bingo"/>
+    <div class="fixed pointer-events-none w-screen h-screen"> 
+    <div v-if="hasWon" class="" v-confetti="{particleCount: 400, force: 0.7}"></div>
+    </div>
+
     <UContainer class="mt-4">
       <div class="flex flex-wrap gap-2 overflow-x-auto p-2">
         <div
@@ -33,6 +37,10 @@
 
 <script setup>
 import WinModal from "~/components/WinModal.vue"
+import { vConfetti } from '@neoconfetti/vue';
+import { useWindowSize } from '@vueuse/core'
+
+const {width, height} = useWindowSize();
 const BINGO_CARDS = [
   "Dean Kamen goes on a random STEM tangent",
   "Water Game Teased",
@@ -59,7 +67,6 @@ const BINGO_CARDS = [
   "PVC pipe is a game piece",
   'Main game is on a "Reef"',
   "FIRST opportunity for everyone",
-  "FREE SPACE",
   "Game code leaked early",
   "Hardest fun you can have",
   "We are so excited",
@@ -80,6 +87,8 @@ const { data: pickedCards } = await useAsyncData("pickedCards", () => {
     }
     pickedCards.push(card);
   }
+  // stick free space in the center
+  pickedCards[12] =   "FREE SPACE";
   return pickedCards;
 });
 
@@ -92,7 +101,7 @@ const toggle = (card) => {
   }
 };
 const isSelected = (card) => {
-  return selectedCards.value.includes(card);
+  return selectedCards.value.includes(card) || card == "FREE SPACE";
 };
 const rows = computed(() => {
   // make rows from pickedCards
