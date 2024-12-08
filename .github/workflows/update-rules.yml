@@ -20,15 +20,7 @@ jobs:
           node-version: "20"
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Run Node.js script
-        run: node update.js
-
-      - name: Commit rules
-        run: |
-          git add .
-          git config --global user.name 'GrahamSH-LLK'
-          git config --global user.email 'grahamsh-llk@users.noreply.github.com'
-          git commit -am "Automated rules update"
-          git push
+        run: npm run rules:update

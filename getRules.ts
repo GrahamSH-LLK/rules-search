@@ -16,6 +16,11 @@ export const getDocument = async (currYear: number) => {
   const document = dom.window.document;
   return document;
 };
+/**
+ * Fixes image URLs since we aren't hosted on the same path as the real manual
+ * @param currYear Current year
+ * @param document The document to fix
+ */
 export const fixImages = (currYear: number, document: Document) => {
   const images = document.querySelectorAll("img");
 
@@ -31,6 +36,12 @@ export const fixImages = (currYear: number, document: Document) => {
     }
   });
 };
+
+/**
+ * Switches rule links from anchor links to frctools.com links
+ * @param currYear Current year
+ * @param document 
+ */
 export const fixRuleLinks = (currYear: number, document: Document) => {
   const links = document.querySelectorAll(`a[href^="#"]`);
   links.forEach((link) => {
@@ -191,15 +202,6 @@ export const scrapeRules = async () => {
   const rules = await getRulesCorpus(document);
   console.log("Scraping done. Writing to file...");
 
-  await fs.writeFile(`./src/lib/${currYear}.json`, JSON.stringify(rules));
-  await fs.writeFile(
-    `./src/lib/${currYear}.js`,
-    `export default ${JSON.stringify(rules)}
-
-
-    export const LAST_UPDATED="${new Date().toString()}" // this is a bodge and a half
-    `
-  );
   const client = new MeiliSearch({
     host: "http://meilisearch.frctools.com",
     apiKey: process.env.MEILI_WRITE_KEY,
