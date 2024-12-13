@@ -141,7 +141,7 @@ export const getRulesCorpus = (document: Document) => {
     const additionalContent: AdditionalContent[] = [];
     const htmlContent: string[] = [];
     const ruleSelector =
-      `:has(h2), h2, [class*="RuleNumber"], [class*=RulesNumber], [class*=TRules-Evergreen]` +
+      `:has(h2), h2, [class*=RulesNumber], [class*=TRules-Evergreen], [class*="RuleNumber"]` +
       (section ? `` : `:not([align="center"])`);
     if (!rule.nextElementSibling) return;
     traverseUntilSelector(ruleSelector, rule, (element: Element) => {
@@ -212,7 +212,7 @@ const traverseUntilSelector = (
 
 export const scrapeRules = async () => {
   const currYear = 2025;
-  const ftc = true;
+  const ftc = process.env.FTC == 'true';
   const document = await getDocument(currYear, ftc);
   const enabledPreprocessors = [fixImages, fixRuleLinks, fixRuleNumbers];
   for (const preprocessor of enabledPreprocessors) {
