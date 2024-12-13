@@ -8,7 +8,7 @@
       <div class="flex gap-2"><NuxtLink
         class="font-bold font-display text-3xl text-blue-950 dark:text-white flex justify-center items-center gap-2"
         to="/"
-        >FRCTools {{ props.page }}</NuxtLink>
+        >FRCTools <span class="md:inline hidden">{{ props.page }}</span></NuxtLink>
       <UButton square variant="outline" to="/bingo"><UIcon name="solar:gamepad-old-bold-duotone" class=" size-6"></UIcon></UButton></div>
       <div v-if="!props.hideYear">
         <USelectMenu :items="validYears" v-model="year">

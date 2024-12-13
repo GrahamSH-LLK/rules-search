@@ -8,6 +8,7 @@ export const useYearsNav = () => {
       value: "2025",
       emoji: "🌊",
     },*/
+    { label: "2025 - INTO THE DEEP", value: "2025-ftc", emoji: "🪸" },
 
     {
       label: "2024 - Crescendo",
@@ -18,5 +19,5 @@ export const useYearsNav = () => {
 };
 
 export const useYears = () => {
-  return [/*"2025",*/ "2024"];
+  return [/*"2025",*/"2025-ftc", "2024"];
 };

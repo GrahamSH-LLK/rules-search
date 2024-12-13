@@ -1,10 +1,12 @@
 import { JSDOM } from "jsdom";
 import fs from "fs/promises";
-import { MeiliSearch } from "meilisearch";
+import { MeiliSearch, MeiliSearchApiError, type Embedders } from "meilisearch";
 export const ruleRegex = /^([a-zA-Z])(\d{3})$/;
-export const getDocument = async (currYear: number) => {
+export const getDocument = async (currYear: number, ftc: boolean = false) => {
   const res = await fetch(
-    `https://firstfrc.blob.core.windows.net/frc${currYear}/Manual/HTML/${currYear}GameManual.htm`
+    !ftc
+      ? `https://firstfrc.blob.core.windows.net/frc${currYear}/Manual/HTML/${currYear}GameManual.htm`
+      : `https://ftc-resources.firstinspires.org/file/ftc/game/cm-html`
   );
   const dec = new TextDecoder("windows-1252"); // word exports are in windows-1252 text format * just because*
   const arrBuffer = await res.arrayBuffer();
@@ -21,17 +23,21 @@ export const getDocument = async (currYear: number) => {
  * @param currYear Current year
  * @param document The document to fix
  */
-export const fixImages = (currYear: number, document: Document) => {
+export const fixImages = (
+  currYear: number,
+  document: Document,
+  ftc: boolean
+) => {
   const images = document.querySelectorAll("img");
-
+  const prefix = !ftc
+    ? `https://firstfrc.blob.core.windows.net/frc${currYear}/Manual/HTML/`
+    : `https://ftc-resources.firstinspires.org/file/ftc/game/cm-html/`;
   // Iterate through each image and update the src attribute
   images.forEach((image) => {
     const currentSrc = image.getAttribute("src");
     if (currentSrc) {
       // Prefix the image URL with the specified prefix
-      const newSrc =
-        `https://firstfrc.blob.core.windows.net/frc${currYear}/Manual/HTML/` +
-        currentSrc;
+      const newSrc = prefix +currentSrc;
       image.setAttribute("src", newSrc);
     }
   });
@@ -40,16 +46,20 @@ export const fixImages = (currYear: number, document: Document) => {
 /**
  * Switches rule links from anchor links to frctools.com links
  * @param currYear Current year
- * @param document 
+ * @param document
  */
-export const fixRuleLinks = (currYear: number, document: Document) => {
+export const fixRuleLinks = (
+  currYear: number,
+  document: Document,
+  ftc: boolean
+) => {
   const links = document.querySelectorAll(`a[href^="#"]`);
   links.forEach((link) => {
     let slug = link.getAttribute("href")?.split("#")[1];
     if (slug?.match(ruleRegex)) {
       link.setAttribute(
         "href",
-        `https://frctools.com/${currYear}/rule/${slug}`
+        `https://frctools.com/${currYear}${ftc ? "-ftc" : ""}/${slug}`
       );
     }
   });
@@ -57,7 +67,11 @@ export const fixRuleLinks = (currYear: number, document: Document) => {
 /*
  * Fixes the broken rule numbers in A tag names (2024 rules R901 to R906 are in attribute names as 815-820)
  */
-export const fixRuleNumbers = (currYear: number, document: Document) => {
+export const fixRuleNumbers = (
+  currYear: number,
+  document: Document,
+  ftc: boolean
+) => {
   if (currYear !== 2024) {
     return console.warn(`Remove fixRuleNumbers preprocessor`);
   }
@@ -120,11 +134,14 @@ export const getRulesCorpus = (document: Document) => {
   );
   let output: Record<string, Rule> = {};
   for (let rule of sectionsAndRules) {
+    if (rule.textContent?.trim() == "") {
+      continue;
+    }
     const section = rule.tagName.toLowerCase() == "h2";
     const additionalContent: AdditionalContent[] = [];
     const htmlContent: string[] = [];
     const ruleSelector =
-      `:has(h2), h2, [class*="RuleNumber"]` +
+      `:has(h2), h2, [class*="RuleNumber"], [class*=RulesNumber], [class*=TRules-Evergreen]` +
       (section ? `` : `:not([align="center"])`);
     if (!rule.nextElementSibling) return;
     traverseUntilSelector(ruleSelector, rule, (element: Element) => {
@@ -154,6 +171,7 @@ export const getRulesCorpus = (document: Document) => {
               return element.getAttribute("name")?.match(ruleRegex);
             })
             ?.getAttribute("name")) ??
+      rule?.querySelector("b:first-child")?.textContent?.trim() ?? rule.querySelector(`span.Headline-Evergreen:first-child`)?.textContent?.trim() ??
       `FIXME${Math.floor(Math.random() * 100)}`;
 
     output[key] = {
@@ -170,7 +188,7 @@ export const getRulesCorpus = (document: Document) => {
   return output;
 };
 
-/*
+/**
  * Recursively traverses DOM elements until a matching selector is found.
  * @param {string} selector The CSS selector to match.
  * @param {Element} element The element to start traversing from.
@@ -193,11 +211,12 @@ const traverseUntilSelector = (
 };
 
 export const scrapeRules = async () => {
-  const currYear = new Date().getFullYear();
-  const document = await getDocument(currYear);
+  const currYear = 2025;
+  const ftc = true;
+  const document = await getDocument(currYear, ftc);
   const enabledPreprocessors = [fixImages, fixRuleLinks, fixRuleNumbers];
   for (const preprocessor of enabledPreprocessors) {
-    preprocessor(currYear, document);
+    preprocessor(currYear, document, ftc);
   }
   const rules = await getRulesCorpus(document);
   console.log("Scraping done. Writing to file...");
@@ -205,15 +224,30 @@ export const scrapeRules = async () => {
   const client = new MeiliSearch({
     host: "http://meilisearch.frctools.com",
     apiKey: process.env.MEILI_WRITE_KEY,
-
   });
 
   if (!rules) {
     return;
   }
-  //await client.deleteIndexIfExists("rules-2024")
-  const index = `rules-${currYear}`;
+  const index = `rules-${currYear}${ftc ? "-ftc" : ""}`;
   const idx = client.index(index);
+  if (process.env.CLEAR === "true") {
+    await client.deleteIndexIfExists(index);
+  }
+
+  try {
+    await idx.fetchInfo();
+  } catch (error: any) {
+    if (
+      error instanceof MeiliSearchApiError &&
+      error.cause?.code == "index_not_found"
+    ) {
+      client.createIndex(index);
+      console.log(`Created index ${index}`);
+    } else {
+      throw error;
+    }
+  }
   const attributes = await idx.getFilterableAttributes();
   const wantedAttributes = ["text", "name", "evergreen", "type", "textContent"];
   for (const attribute of wantedAttributes) {
@@ -222,16 +256,38 @@ export const scrapeRules = async () => {
       break;
     }
   }
+
+  const currEmbedderSettings = await client.index(index).getEmbedders();
+  const wantedEmbedderSettings: Embedders = {
+    default: {
+      source: "openAi",
+      apiKey: process.env.OPENAI_KEY,
+      model: "text-embedding-3-large",
+      dimensions: 3072,
+      documentTemplateMaxBytes: 800,
+      documentTemplate:
+        "An rule for a robotics competition with the content '{{doc.text}}'",
+    },
+  };
+  if (
+    !currEmbedderSettings ||
+    !Object.keys(currEmbedderSettings).length ||
+    !currEmbedderSettings["default"]
+  ) {
+    await client.index(index).updateEmbedders(wantedEmbedderSettings);
+  }
+  console.log(rules)
   client
     .index(index)
-    .addDocuments(Object.values(rules).map(
-      (rule) => {
+    .addDocuments(
+      Object.values(rules).map((rule) => {
         return {
-         ...rule,
-          id: btoa(rule.name).replaceAll("=",""),
+          ...rule,
+          id: btoa(rule.name).replaceAll("=", ""),
         };
-      }
-    ), {primaryKey: 'id'})
+      }),
+      { primaryKey: "id" }
+    )
     .then((res) => console.log(res))
     .catch((err) => console.error(err));
 };
