@@ -5,7 +5,7 @@ export default defineEventHandler(async (event)=> {
   
   let query = url.searchParams?.get("query")?.toUpperCase() ?? "";
   let year = url.searchParams.get("year") ?? new Date().getFullYear();
-  const MEILI_READ_KEY = `2db41b6a1ce3e0daf62e36d67f996e60f41a07807588971a050d7bfb74df5efe`;
+  const MEILI_READ_KEY = `511e67e52684dfba7dbeddbf37795d7b71abce169ad510580f41c09f09e676cc`;
   const client = new MeiliSearch({
     host: "https://meilisearch.frctools.com",
     apiKey: MEILI_READ_KEY,
