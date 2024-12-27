@@ -138,22 +138,23 @@ const share = async (result) => {
     navigator.share(shareData);
   } else {
     await navigator.clipboard.writeText(
-      `https://frctools.com/${year.value.value}/rule/${result.name}`
+      `https://frctools.com/${year.value.value}/rule/${result.name}`,
     );
   }
 };
 const randomSearches = [
-   "batteries",
-   "wire gauge",
-   "scoring",
-   "wiring",
-   "event rules",
-   "alliance selection",
-   "extension limits",
-   "game piece"
-]
+  "batteries",
+  "wire gauge",
+  "scoring",
+  "wiring",
+  "event rules",
+  "alliance selection",
+  "extension limits",
+  "game piece",
+];
 const randomSearch = () => {
-   query.value = randomSearches[Math.floor(Math.random() * randomSearches.length - 1)];
+  query.value =
+    randomSearches[Math.floor(Math.random() * randomSearches.length - 1)];
 };
 watch(query, refresh);
 watch(semanticEnabled, refresh);

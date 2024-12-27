@@ -62,7 +62,7 @@ const items = computed(() => {
     },
     {
       label: `${upperFirst(data.value.type)} ${data.value.name}`,
-      to: `/${year.value}/${rule.value}`,
+      to: `/${year.value}/rule/${rule.value}`,
     },
   ];
 });

@@ -6,7 +6,7 @@ export const getDocument = async (currYear: number, ftc: boolean = false) => {
   const res = await fetch(
     !ftc
       ? `https://firstfrc.blob.core.windows.net/frc${currYear}/Manual/HTML/${currYear}GameManual.htm`
-      : `https://ftc-resources.firstinspires.org/file/ftc/game/cm-html`
+      : `https://ftc-resources.firstinspires.org/file/ftc/game/cm-html`,
   );
   const dec = new TextDecoder("windows-1252"); // word exports are in windows-1252 text format * just because*
   const arrBuffer = await res.arrayBuffer();
@@ -26,7 +26,7 @@ export const getDocument = async (currYear: number, ftc: boolean = false) => {
 export const fixImages = (
   currYear: number,
   document: Document,
-  ftc: boolean
+  ftc: boolean,
 ) => {
   const images = document.querySelectorAll("img");
   const prefix = !ftc
@@ -37,7 +37,7 @@ export const fixImages = (
     const currentSrc = image.getAttribute("src");
     if (currentSrc) {
       // Prefix the image URL with the specified prefix
-      const newSrc = prefix +currentSrc;
+      const newSrc = prefix + currentSrc;
       image.setAttribute("src", newSrc);
     }
   });
@@ -51,7 +51,7 @@ export const fixImages = (
 export const fixRuleLinks = (
   currYear: number,
   document: Document,
-  ftc: boolean
+  ftc: boolean,
 ) => {
   const links = document.querySelectorAll(`a[href^="#"]`);
   links.forEach((link) => {
@@ -59,7 +59,7 @@ export const fixRuleLinks = (
     if (slug?.match(ruleRegex)) {
       link.setAttribute(
         "href",
-        `https://frctools.com/${currYear}${ftc ? "-ftc" : ""}/${slug}`
+        `https://frctools.com/${currYear}${ftc ? "-ftc" : ""}/${slug}`,
       );
     }
   });
@@ -70,7 +70,7 @@ export const fixRuleLinks = (
 export const fixRuleNumbers = (
   currYear: number,
   document: Document,
-  ftc: boolean
+  ftc: boolean,
 ) => {
   if (currYear !== 2024) {
     return console.warn(`Remove fixRuleNumbers preprocessor`);
@@ -130,7 +130,7 @@ export interface AdditionalContentText extends AdditionalContent {
 }
 export const getRulesCorpus = (document: Document) => {
   const sectionsAndRules = document.querySelectorAll(
-    `div > h2, [class*="RuleNumber"]`
+    `div > h2, [class*="RuleNumber"]`,
   );
   let output: Record<string, Rule> = {};
   for (let rule of sectionsAndRules) {
@@ -171,7 +171,10 @@ export const getRulesCorpus = (document: Document) => {
               return element.getAttribute("name")?.match(ruleRegex);
             })
             ?.getAttribute("name")) ??
-      rule?.querySelector("b:first-child")?.textContent?.trim() ?? rule.querySelector(`span.Headline-Evergreen:first-child`)?.textContent?.trim() ??
+      rule?.querySelector("b:first-child")?.textContent?.trim() ??
+      rule
+        .querySelector(`span.Headline-Evergreen:first-child`)
+        ?.textContent?.trim() ??
       `FIXME${Math.floor(Math.random() * 100)}`;
 
     output[key] = {
@@ -199,7 +202,7 @@ export const getRulesCorpus = (document: Document) => {
 const traverseUntilSelector = (
   selector: string,
   element: Element,
-  callback: Function
+  callback: Function,
 ) => {
   callback(element);
   let currentElement = element.nextElementSibling;
@@ -211,8 +214,8 @@ const traverseUntilSelector = (
 };
 
 export const scrapeRules = async () => {
-  const ftc = process.env.FTC == 'true';
-  const currYear = ftc  ? 2025 : new Date().getFullYear();
+  const ftc = process.env.FTC == "true";
+  const currYear = ftc ? 2025 : new Date().getFullYear();
 
   const document = await getDocument(currYear, ftc);
   const enabledPreprocessors = [fixImages, fixRuleLinks, fixRuleNumbers];
@@ -277,7 +280,7 @@ export const scrapeRules = async () => {
   ) {
     await client.index(index).updateEmbedders(wantedEmbedderSettings);
   }
-  console.log(rules)
+  console.log(rules);
   client
     .index(index)
     .addDocuments(
@@ -287,7 +290,7 @@ export const scrapeRules = async () => {
           id: btoa(rule.name).replaceAll("=", ""),
         };
       }),
-      { primaryKey: "id" }
+      { primaryKey: "id" },
     )
     .then((res) => console.log(res))
     .catch((err) => console.error(err));

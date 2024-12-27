@@ -20,7 +20,6 @@ export default defineNuxtConfig({
     },
   },
   plausible: {
-   apiHost: 'https://possible.grahamsh.com'
-
-  }
+    apiHost: "https://possible.grahamsh.com",
+  },
 });

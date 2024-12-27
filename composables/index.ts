@@ -19,5 +19,5 @@ export const useYearsNav = () => {
 };
 
 export const useYears = () => {
-  return [/*"2025",*/"2025-ftc", "2024"];
+  return [/*"2025",*/ "2025-ftc", "2024"];
 };

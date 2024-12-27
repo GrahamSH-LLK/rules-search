@@ -1,8 +1,12 @@
 <template>
-  <div >
-    <Nav hide-year page="Bingo"/>
-    <div class="fixed pointer-events-none w-screen h-screen"> 
-    <div v-if="hasWon" class="" v-confetti="{particleCount: 400, force: 0.7}"></div>
+  <div>
+    <Nav hide-year page="Bingo" />
+    <div class="fixed pointer-events-none w-screen h-screen">
+      <div
+        v-if="hasWon"
+        class=""
+        v-confetti="{ particleCount: 400, force: 0.7 }"
+      ></div>
     </div>
 
     <UContainer class="mt-4">
@@ -36,11 +40,11 @@
 </template>
 
 <script setup>
-import WinModal from "~/components/WinModal.vue"
-import { vConfetti } from '@neoconfetti/vue';
-import { useWindowSize } from '@vueuse/core'
+import WinModal from "~/components/WinModal.vue";
+import { vConfetti } from "@neoconfetti/vue";
+import { useWindowSize } from "@vueuse/core";
 
-const {width, height} = useWindowSize();
+const { width, height } = useWindowSize();
 const BINGO_CARDS = [
   "Dean Kamen goes on a random STEM tangent",
   "Water Game Teased",
@@ -88,7 +92,7 @@ const { data: pickedCards } = await useAsyncData("pickedCards", () => {
     pickedCards.push(card);
   }
   // stick free space in the center
-  pickedCards[12] =   "FREE SPACE";
+  pickedCards[12] = "FREE SPACE";
   return pickedCards;
 });
 
@@ -150,18 +154,22 @@ const hasWon = computed(() => {
     }
     return true;
   })();
-  return rowWins.some((x) => x) || columnWins.some((x) => x) || leftDiagonalWin || rightDiagonalWin;
+  return (
+    rowWins.some((x) => x) ||
+    columnWins.some((x) => x) ||
+    leftDiagonalWin ||
+    rightDiagonalWin
+  );
 });
 watch(hasWon, () => {
-   const modal = useModal();
-   if (hasWon.value) {
-      modal.open(WinModal, {title: "You win!"})
-
-   }
-})
+  const modal = useModal();
+  if (hasWon.value) {
+    modal.open(WinModal, { title: "You win!" });
+  }
+});
 useSeoMeta({
-   title: `Bingo`,
-   description: `Play kickoff BINGO`,
-   ogDescription: `Play kickoff BINGO`
+  title: `Bingo`,
+  description: `Play kickoff BINGO`,
+  ogDescription: `Play kickoff BINGO`,
 });
 </script>

@@ -7,11 +7,10 @@ export default defineEventHandler(async (event) => {
   let query = url.searchParams.get("query") ?? "";
   let year = url.searchParams.get("year") ?? new Date().getFullYear();
   let semantic = url.searchParams.get("semantic") == "true";
-  if (query == '') {
-   return {
-      hits: []
-      
-   }
+  if (query == "") {
+    return {
+      hits: [],
+    };
   }
   const client = new MeiliSearch({
     host: "https://meilisearch.frctools.com",
@@ -26,7 +25,7 @@ export default defineEventHandler(async (event) => {
       semanticRatio: 0.5,
     };
   }
- 
+
   const searchResults = await index.search<Rule>(query, options);
   return searchResults;
 });

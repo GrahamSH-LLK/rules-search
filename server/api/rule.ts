@@ -1,8 +1,8 @@
-import {MeiliSearch} from 'meilisearch'
-import { Rule } from '../utils';
-export default defineEventHandler(async (event)=> {
+import { MeiliSearch } from "meilisearch";
+import { Rule } from "../utils";
+export default defineEventHandler(async (event) => {
   const url = getRequestURL(event);
-  
+
   let query = url.searchParams?.get("query")?.toUpperCase() ?? "";
   let year = url.searchParams.get("year") ?? new Date().getFullYear();
   const MEILI_READ_KEY = `511e67e52684dfba7dbeddbf37795d7b71abce169ad510580f41c09f09e676cc`;
@@ -16,10 +16,8 @@ export default defineEventHandler(async (event)=> {
     filter: `name = '${query}'`,
   });
   if (searchResults.hits.length === 0) {
-    throw  { error: "no such rule" };
+    throw { error: "no such rule" };
   }
   const rule = searchResults.hits[0];
   return rule;
-
-
 });

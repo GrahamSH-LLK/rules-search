@@ -32,7 +32,7 @@ router.get(
   eventHandler(async (event) => {
     const img = await takeScreenshot(event.context.params.rule.toUpperCase());
     return img;
-  })
+  }),
 );
 app.use(router);
 listen(toNodeListener(app));

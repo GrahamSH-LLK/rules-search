@@ -1,8 +1,7 @@
 <script setup>
-await navigateTo(`/${new Date().getFullYear()}`)
+await navigateTo(`/${new Date().getFullYear()}`);
 </script>
 
 <template>
-   <div>
-   </div>
+  <div></div>
 </template>
