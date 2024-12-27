@@ -55,7 +55,7 @@
             <div class="flex justify-between">
               <NuxtLink
                 class="font-bold text-xl"
-                :to="`/${year}/${result.name}`"
+                :to="`/${year}/rule/${result.name}`"
               >
                 {{ upperFirst(result.type) }} {{ result.name }}
               </NuxtLink>
