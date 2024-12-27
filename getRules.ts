@@ -211,8 +211,9 @@ const traverseUntilSelector = (
 };
 
 export const scrapeRules = async () => {
-  const currYear = 2025;
   const ftc = process.env.FTC == 'true';
+  const currYear = ftc  ? 2025 : new Date().getFullYear();
+
   const document = await getDocument(currYear, ftc);
   const enabledPreprocessors = [fixImages, fixRuleLinks, fixRuleNumbers];
   for (const preprocessor of enabledPreprocessors) {
