@@ -31,4 +31,4 @@ jobs:
         run: npm run rules:update
         env:
           FTC: ${{ matrix.ftc }}
-          YEAR: ${{ matrix.year }}
+          YEAR_SPECIFIC: ${{ matrix.year }}
