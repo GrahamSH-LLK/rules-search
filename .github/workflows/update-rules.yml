@@ -8,6 +8,11 @@ on:
 
 jobs:
   run-node-script:
+    strategy:
+      matrix:
+        ftc: [false, true]
+        year: [2025]
+
     runs-on: ubuntu-latest
 
     steps:
@@ -24,3 +29,6 @@ jobs:
 
       - name: Run Node.js script
         run: npm run rules:update
+        env:
+          FTC: ${{ matrix.ftc }}
+          YEAR: ${{ matrix.year }}
