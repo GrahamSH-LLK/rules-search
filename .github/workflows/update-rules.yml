@@ -32,5 +32,5 @@ jobs:
         env:
           FTC: ${{ matrix.ftc }}
           YEAR_SPECIFIC: ${{ matrix.year }}
-          MEILI_WRITE_KEY: ${{ env.MEILI_WRITE_KEY }}
-          OPENAI_KEY: ${{ env.OPENAI_KEY }}
+          MEILI_WRITE_KEY: ${{ secrets.MEILI_WRITE_KEY }}
+          OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
