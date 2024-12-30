@@ -44,7 +44,8 @@ import WinModal from "~/components/WinModal.vue";
 import { vConfetti } from "@neoconfetti/vue";
 import { useWindowSize } from "@vueuse/core";
 
-const { width, height } = useWindowSize();
+
+
 const BINGO_CARDS = [
   "Dean Kamen goes on a random STEM tangent",
   "Water Game Teased",

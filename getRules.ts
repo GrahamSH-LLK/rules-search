@@ -1,18 +1,17 @@
 import { JSDOM } from "jsdom";
-import fs from "fs/promises";
+import { consola } from "consola";
 import { MeiliSearch, MeiliSearchApiError, type Embedders } from "meilisearch";
 export const ruleRegex = /^([a-zA-Z])(\d{3})$/;
 export const getDocument = async (currYear: number, ftc: boolean = false) => {
   const res = await fetch(
     !ftc
-      ? `https://firstfrc.blob.core.windows.net/frc${currYear}/Manual/HTML/${currYear}GameManual.htm`
-      : `https://ftc-resources.firstinspires.org/file/ftc/game/cm-html`,
+      ? `https://firstfrc.blob.core.windows.net/frc${currYear}/Manual/HTML/${currYear}${currYear < 2024 ? 'FRC': ''}GameManual.htm`
+      : `https://ftc-resources.firstinspires.org/file/ftc/game/cm-html`
   );
   const dec = new TextDecoder("windows-1252"); // word exports are in windows-1252 text format * just because*
   const arrBuffer = await res.arrayBuffer();
   const ui8array = new Uint8Array(arrBuffer);
   const html = dec.decode(ui8array);
-
   // Use jsdom to parse the HTML
   const dom = new JSDOM(html);
   const document = dom.window.document;
@@ -26,7 +25,7 @@ export const getDocument = async (currYear: number, ftc: boolean = false) => {
 export const fixImages = (
   currYear: number,
   document: Document,
-  ftc: boolean,
+  ftc: boolean
 ) => {
   const images = document.querySelectorAll("img");
   const prefix = !ftc
@@ -51,7 +50,7 @@ export const fixImages = (
 export const fixRuleLinks = (
   currYear: number,
   document: Document,
-  ftc: boolean,
+  ftc: boolean
 ) => {
   const links = document.querySelectorAll(`a[href^="#"]`);
   links.forEach((link) => {
@@ -59,7 +58,7 @@ export const fixRuleLinks = (
     if (slug?.match(ruleRegex)) {
       link.setAttribute(
         "href",
-        `https://frctools.com/${currYear}${ftc ? "-ftc" : ""}/${slug}`,
+        `https://frctools.com/${currYear}${ftc ? "-ftc" : ""}/${slug}`
       );
     }
   });
@@ -70,10 +69,10 @@ export const fixRuleLinks = (
 export const fixRuleNumbers = (
   currYear: number,
   document: Document,
-  ftc: boolean,
+  ftc: boolean
 ) => {
-  if (currYear !== 2024) {
-    return console.warn(`Remove fixRuleNumbers preprocessor`);
+  if (currYear !== 2024 || ftc) {
+    return consola.warn(`Remove fixRuleNumbers preprocessor`);
   }
   const elements = document.querySelectorAll('[class*="RuleNumber"]');
   elements.forEach((element) => {
@@ -130,11 +129,12 @@ export interface AdditionalContentText extends AdditionalContent {
 }
 export const getRulesCorpus = (document: Document) => {
   const sectionsAndRules = document.querySelectorAll(
-    `div > h2, [class*="RuleNumber"]`,
+    `div > h2, [class*="RuleNumber"]`
   );
   let output: Record<string, Rule> = {};
   for (let rule of sectionsAndRules) {
     if (rule.textContent?.trim() == "") {
+      consola.warn('ignoring a rule!!')
       continue;
     }
     const section = rule.tagName.toLowerCase() == "h2";
@@ -143,7 +143,7 @@ export const getRulesCorpus = (document: Document) => {
     const ruleSelector =
       `:has(h2), h2, [class*=RulesNumber], [class*=TRules-Evergreen], [class*="RuleNumber"]` +
       (section ? `` : `:not([align="center"])`);
-    if (!rule.nextElementSibling) return;
+    if (!rule.nextElementSibling) continue;
     traverseUntilSelector(ruleSelector, rule, (element: Element) => {
       htmlContent.push(element.outerHTML);
       additionalContent.push({
@@ -188,6 +188,7 @@ export const getRulesCorpus = (document: Document) => {
     };
   }
 
+  console.log(output)
   return output;
 };
 
@@ -202,7 +203,7 @@ export const getRulesCorpus = (document: Document) => {
 const traverseUntilSelector = (
   selector: string,
   element: Element,
-  callback: Function,
+  callback: Function
 ) => {
   callback(element);
   let currentElement = element.nextElementSibling;
@@ -215,15 +216,20 @@ const traverseUntilSelector = (
 
 export const scrapeRules = async () => {
   const ftc = process.env.FTC == "true";
-  const currYear = ftc ? 2025 : new Date().getFullYear();
+  const currYear = ftc
+    ? 2025
+    : (process.env.YEAR_SPECIFIC
+    ? parseInt(process.env.YEAR_SPECIFIC)
+    : new Date().getFullYear());
 
   const document = await getDocument(currYear, ftc);
   const enabledPreprocessors = [fixImages, fixRuleLinks, fixRuleNumbers];
   for (const preprocessor of enabledPreprocessors) {
+    consola.info(`Running preprocessor ${preprocessor.name}`);
     preprocessor(currYear, document, ftc);
   }
   const rules = await getRulesCorpus(document);
-  console.log("Scraping done. Writing to file...");
+  consola.info("Scraping done. Writing to meilisearch...");
 
   const client = new MeiliSearch({
     host: "http://meilisearch.frctools.com",
@@ -231,6 +237,7 @@ export const scrapeRules = async () => {
   });
 
   if (!rules) {
+    consola.error('No rules found')
     return;
   }
   const index = `rules-${currYear}${ftc ? "-ftc" : ""}`;
@@ -247,7 +254,7 @@ export const scrapeRules = async () => {
       error.cause?.code == "index_not_found"
     ) {
       client.createIndex(index);
-      console.log(`Created index ${index}`);
+      consola.log(`Created index ${index}`);
     } else {
       throw error;
     }
@@ -280,7 +287,7 @@ export const scrapeRules = async () => {
   ) {
     await client.index(index).updateEmbedders(wantedEmbedderSettings);
   }
-  console.log(rules);
+  consola.log(`Uploading ${rules.length} rules`);
   client
     .index(index)
     .addDocuments(
@@ -290,9 +297,9 @@ export const scrapeRules = async () => {
           id: btoa(rule.name).replaceAll("=", ""),
         };
       }),
-      { primaryKey: "id" },
+      { primaryKey: "id" }
     )
-    .then((res) => console.log(res))
-    .catch((err) => console.error(err));
+    .then((res) => consola.log(res))
+    .catch((err) => consola.error(err));
 };
 await scrapeRules();

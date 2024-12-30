@@ -15,9 +15,19 @@ export const useYearsNav = () => {
       value: "2024",
       emoji: "🎶",
     },
+    {
+      label: "2023 - Charged Up",
+      value: "2023",
+      emoji: "⚡️",
+    },
+    {
+      label: "2022 - Rapid React",
+      value: "2022",
+      emoji: "✈️",
+    }
   ];
 };
 
 export const useYears = () => {
-  return [/*"2025",*/ "2025-ftc", "2024"];
+  return useYearsNav().map(year => year.value);
 };
