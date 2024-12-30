@@ -5,7 +5,9 @@ export const ruleRegex = /^([a-zA-Z])(\d{3})$/;
 export const getDocument = async (currYear: number, ftc: boolean = false) => {
   const res = await fetch(
     !ftc
-      ? `https://firstfrc.blob.core.windows.net/frc${currYear}/Manual/HTML/${currYear}${currYear < 2024 ? 'FRC': ''}GameManual.htm`
+      ? `https://firstfrc.blob.core.windows.net/frc${currYear}/Manual/HTML/${currYear}${
+          currYear < 2024 ? "FRC" : ""
+        }GameManual.htm`
       : `https://ftc-resources.firstinspires.org/file/ftc/game/cm-html`
   );
   const dec = new TextDecoder("windows-1252"); // word exports are in windows-1252 text format * just because*
@@ -134,7 +136,7 @@ export const getRulesCorpus = (document: Document) => {
   let output: Record<string, Rule> = {};
   for (let rule of sectionsAndRules) {
     if (rule.textContent?.trim() == "") {
-      consola.warn('ignoring a rule!!')
+      consola.warn("ignoring a rule!!");
       continue;
     }
     const section = rule.tagName.toLowerCase() == "h2";
@@ -214,15 +216,26 @@ const traverseUntilSelector = (
 };
 
 export const scrapeRules = async () => {
+  const requiredEnvVariables = ["MEILI_WRITE_KEY", "OPENAI_KEY"];
+  for (const requiredEnv of requiredEnvVariables) {
+    if (!process.env[requiredEnv]) {
+      consola.error(`Missing required environment variable: ${requiredEnv}`);
+      process.exit(1);
+    }
+  }
   const ftc = process.env.FTC == "true";
   const currYear = ftc
     ? 2025
-    : (process.env.YEAR_SPECIFIC
+    : process.env.YEAR_SPECIFIC
     ? parseInt(process.env.YEAR_SPECIFIC)
-    : new Date().getFullYear());
-   if (currYear == 2025 && !ftc && /* before january 4th*/ new Date() < new Date("2025-01-04")) {
-      return;
-   }
+    : new Date().getFullYear();
+  if (
+    currYear == 2025 &&
+    !ftc &&
+    /* before january 4th*/ new Date() < new Date("2025-01-04")
+  ) {
+    return;
+  }
 
   const document = await getDocument(currYear, ftc);
   const enabledPreprocessors = [fixImages, fixRuleLinks, fixRuleNumbers];
@@ -239,7 +252,7 @@ export const scrapeRules = async () => {
   });
 
   if (!rules) {
-    consola.error('No rules found')
+    consola.error("No rules found");
     return;
   }
   const index = `rules-${currYear}${ftc ? "-ftc" : ""}`;
