@@ -220,6 +220,9 @@ export const scrapeRules = async () => {
     : (process.env.YEAR_SPECIFIC
     ? parseInt(process.env.YEAR_SPECIFIC)
     : new Date().getFullYear());
+   if (currYear == 2025 && !ftc && /* before january 4th*/ new Date() < new Date("2025-01-04")) {
+      return;
+   }
 
   const document = await getDocument(currYear, ftc);
   const enabledPreprocessors = [fixImages, fixRuleLinks, fixRuleNumbers];
