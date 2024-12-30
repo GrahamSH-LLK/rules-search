@@ -188,7 +188,6 @@ export const getRulesCorpus = (document: Document) => {
     };
   }
 
-  console.log(output)
   return output;
 };
 
