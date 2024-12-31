@@ -76,12 +76,13 @@ const BINGO_CARDS = [
   "Hardest fun you can have",
   "We are so excited",
   "Student interviews",
-  "Premiere chat goes quite for Woodie Flowers tribute",
   "Woodie flowers tribute",
   "Random sponsor commercial",
   "Game reveal video features dozer abuse",
   "Robots building children",
   "It's a terrain game",
+  "Yellow game piece",
+  "Game piece is called seaweed"
 ];
 const { data: pickedCards } = await useAsyncData("pickedCards", () => {
   const pickedCards = [];
