@@ -1,5 +1,6 @@
 /*
    Make sure newest years are FIRST
+   move ftc up on kickoff
 */
 export const useYearsNav = () => {
   return [
@@ -8,13 +9,13 @@ export const useYearsNav = () => {
       value: "2025",
       emoji: "🌊",
     },*/
-    { label: "2025 - INTO THE DEEP", value: "2025-ftc", emoji: "🪸" },
 
     {
       label: "2024 - Crescendo",
       value: "2024",
       emoji: "🎶",
     },
+    { label: "2025 - INTO THE DEEP", value: "2025-ftc", emoji: "🪸" },
     {
       label: "2023 - Charged Up",
       value: "2023",
