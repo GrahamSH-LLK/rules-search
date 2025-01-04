@@ -3,7 +3,7 @@ import { Rule } from "../utils";
 
 export default defineEventHandler(async (event) => {
   const url = getRequestURL(event);
-  const MEILI_READ_KEY = `511e67e52684dfba7dbeddbf37795d7b71abce169ad510580f41c09f09e676cc`;
+  const MEILI_READ_KEY = `2db41b6a1ce3e0daf62e36d67f996e60f41a07807588971a050d7bfb74df5efe`;
   let query = url.searchParams.get("query") ?? "";
   let year = url.searchParams.get("year") ?? new Date().getFullYear();
   let semantic = url.searchParams.get("semantic") == "true";
