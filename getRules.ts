@@ -117,21 +117,22 @@ export const fixRuleNumbers = (
   });
 };
 /**
- * Removes rulenumber class from broken bumper "rules" that shouldn't be rules
+ * Removes rulenumber class from broken list item "rules" that shouldn't be rules
  * @param currYear Current year
  * @param document Document object to fix
  * @param ftc Is ftc
  */
-export const fixBumperRules = (
+export const fixListRules = (
   currYear: number,
   document: Document,
   ftc: boolean
 ) => {
   if (!ftc && currYear == 2025) {
     const brokenElements = document.querySelectorAll(
-      '.RuleNumber-Robot[style="margin-left:1.0in"'
+      '.RuleNumber-Robot[style="margin-left:1.0in"], .RuleNumber-Robot[style="margin-left:99.35pt;text-indent:-99.35pt"], .RuleNumber-Game[style="margin-left:.75in;text-indent:-.25in"]'
     );
     for (const brokenElement of brokenElements) {
+      brokenElement.classList.remove("RuleNumber-Game");
       brokenElement.classList.remove("RuleNumber-Robot");
     }
   }
@@ -181,7 +182,7 @@ export const getRulesCorpus = (document: Document) => {
   let output: Record<string, Rule> = {};
   for (let rule of sectionsAndRules) {
     if (rule.textContent?.trim() == "") {
-      consola.warn("ignoring a rule!!");
+      consola.warn("Ignoring a rule");
       continue;
     }
     const section = rule.tagName.toLowerCase() == "h2";
@@ -223,7 +224,7 @@ export const getRulesCorpus = (document: Document) => {
         .querySelector(`span.Headline-Evergreen:first-child`)
         ?.textContent?.trim() ??
       `FIXME${Math.floor(Math.random() * 100)}`;
-
+      
     output[key] = {
       name: key,
       type: section ? Type.Section : Type.Rule,
@@ -287,7 +288,7 @@ export const scrapeRules = async () => {
     fixImages,
     fixRuleLinks,
     fixRuleNumbers,
-    fixBumperRules,
+    fixListRules,
   ];
   for (const preprocessor of enabledPreprocessors) {
     consola.info(`Running preprocessor ${preprocessor.name}`);
@@ -304,6 +305,10 @@ export const scrapeRules = async () => {
   if (!rules) {
     consola.error("No rules found");
     return;
+  }
+  const fixmeCount = Object.keys(rules).find(name => name.includes('FIXME'));
+  if (fixmeCount) {
+    consola.error(`Couldn't find name for ${fixmeCount} rules `);
   }
   const index = `rules-${currYear}${ftc ? "-ftc" : ""}`;
   const idx = client.index(index);
