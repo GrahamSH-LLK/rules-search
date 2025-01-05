@@ -8,24 +8,22 @@ export const ruleRegex = /^([a-zA-Z])(\d{3})$/;
  * @param ui8array ui8array of html content
  */
 const getBufferEncoding = (ui8array: Uint8Array): string => {
-   const decoder = new TextDecoder("ascii");
-   const html = decoder.decode(ui8array);
-   const dom = new JSDOM(html);
-   const document = dom.window.document;
-   const contentType = document.querySelector('meta[http-equiv="Content-Type"]')?.getAttribute('content');
-   if (contentType) {
-     const [, charset] = contentType.match(/charset=([^;]+)/) || [];
-     if (charset) {
-     return charset;
-     }
-   }
-      consola.warn("Defaulting to windows-1252. Check validity.")
-      return "windows-1252";
-   
- 
-
-
-}
+  const decoder = new TextDecoder("ascii");
+  const html = decoder.decode(ui8array);
+  const dom = new JSDOM(html);
+  const document = dom.window.document;
+  const contentType = document
+    .querySelector('meta[http-equiv="Content-Type"]')
+    ?.getAttribute("content");
+  if (contentType) {
+    const [, charset] = contentType.match(/charset=([^;]+)/) || [];
+    if (charset) {
+      return charset;
+    }
+  }
+  consola.warn("Defaulting to windows-1252. Check validity.");
+  return "windows-1252";
+};
 export const getDocument = async (currYear: number, ftc: boolean = false) => {
   const res = await fetch(
     !ftc
@@ -34,7 +32,7 @@ export const getDocument = async (currYear: number, ftc: boolean = false) => {
         }GameManual.htm`
       : `https://ftc-resources.firstinspires.org/file/ftc/game/cm-html`
   );
-  
+
   const arrBuffer = await res.arrayBuffer();
   const ui8array = new Uint8Array(arrBuffer);
   const charset = getBufferEncoding(ui8array);
@@ -117,6 +115,26 @@ export const fixRuleNumbers = (
       }
     }
   });
+};
+/**
+ * Removes rulenumber class from broken bumper "rules" that shouldn't be rules
+ * @param currYear Current year
+ * @param document Document object to fix
+ * @param ftc Is ftc
+ */
+export const fixBumperRules = (
+  currYear: number,
+  document: Document,
+  ftc: boolean
+) => {
+  if (!ftc && currYear == 2025) {
+    const brokenElements = document.querySelectorAll(
+      '.RuleNumber-Robot[style="margin-left:1.0in"'
+    );
+    for (const brokenElement of brokenElements) {
+      brokenElement.classList.remove("RuleNumber-Robot");
+    }
+  }
 };
 
 export interface Rule {
@@ -265,7 +283,12 @@ export const scrapeRules = async () => {
   }
 
   const document = await getDocument(currYear, ftc);
-  const enabledPreprocessors = [fixImages, fixRuleLinks, fixRuleNumbers];
+  const enabledPreprocessors = [
+    fixImages,
+    fixRuleLinks,
+    fixRuleNumbers,
+    fixBumperRules,
+  ];
   for (const preprocessor of enabledPreprocessors) {
     consola.info(`Running preprocessor ${preprocessor.name}`);
     preprocessor(currYear, document, ftc);
@@ -329,7 +352,7 @@ export const scrapeRules = async () => {
   ) {
     await client.index(index).updateEmbedders(wantedEmbedderSettings);
   }
-  consola.log(`Uploading ${rules.length} rules`);
+  consola.log(`Uploading ${Object.keys(rules).length} rules`);
   client
     .index(index)
     .addDocuments(
