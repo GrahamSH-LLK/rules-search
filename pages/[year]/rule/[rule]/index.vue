@@ -67,7 +67,14 @@ const items = computed(() => {
   ];
 });
 useSeoMeta({
-  title: `Search`,
+  title: `${upperFirst(data.value.type)} ${data.value.name}`,
+  ogTitle: `${upperFirst(data.value.type)} ${data.value.name}`,
+  ogImage: data.value.additionalContent.find((x)=>
+   x?.type == 'image' 
+  )?.src,
+  description: data.value.summary,
+  ogDescription: data.value.summary,
+  
 });
 </script>
 
