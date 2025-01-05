@@ -2,6 +2,30 @@ import { JSDOM } from "jsdom";
 import { consola } from "consola";
 import { MeiliSearch, MeiliSearchApiError, type Embedders } from "meilisearch";
 export const ruleRegex = /^([a-zA-Z])(\d{3})$/;
+
+/**
+ * Parses a html buffer as ascii in order to get the charset
+ * @param ui8array ui8array of html content
+ */
+const getBufferEncoding = (ui8array: Uint8Array): string => {
+   const decoder = new TextDecoder("ascii");
+   const html = decoder.decode(ui8array);
+   const dom = new JSDOM(html);
+   const document = dom.window.document;
+   const contentType = document.querySelector('meta[http-equiv="Content-Type"]')?.getAttribute('content');
+   if (contentType) {
+     const [, charset] = contentType.match(/charset=([^;]+)/) || [];
+     if (charset) {
+     return charset;
+     }
+   }
+      consola.warn("Defaulting to windows-1252. Check validity.")
+      return "windows-1252";
+   
+ 
+
+
+}
 export const getDocument = async (currYear: number, ftc: boolean = false) => {
   const res = await fetch(
     !ftc
@@ -10,9 +34,12 @@ export const getDocument = async (currYear: number, ftc: boolean = false) => {
         }GameManual.htm`
       : `https://ftc-resources.firstinspires.org/file/ftc/game/cm-html`
   );
-  const dec = new TextDecoder("windows-1252"); // word exports are in windows-1252 text format * just because*
+  
   const arrBuffer = await res.arrayBuffer();
   const ui8array = new Uint8Array(arrBuffer);
+  const charset = getBufferEncoding(ui8array);
+  const dec = new TextDecoder(charset); // word exports are in windows-1252 text format * just because*
+
   const html = dec.decode(ui8array);
   // Use jsdom to parse the HTML
   const dom = new JSDOM(html);
