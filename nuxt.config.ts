@@ -27,5 +27,10 @@ export default defineNuxtConfig({
   plausible: {
     apiHost: "https://possible.grahamsh.com",
   },
+  vite: {
+   ssr: {
+      external: ["canvas"]
+   }
+  }
 
 });
