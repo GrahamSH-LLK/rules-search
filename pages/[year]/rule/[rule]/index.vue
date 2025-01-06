@@ -3,9 +3,9 @@
     <Nav v-model="yearNav" page="Search" />
     <UContainer class="flex flex-col gap-4 mt-4" v-if="!error">
       <UBreadcrumb :items="items" />
-
-      <div v-html="data.text" class="prose max-w-full dark:prose-invert"></div
-    ></UContainer>
+      <RenderHtml :html="data.text" />
+      </UContainer
+    >
     <UContainer class="flex flex-col gap-4 mt-4" v-else>
       <div
         class="flex flex-col items-center justify-center flex-1 px-6 py-14 sm:px-14"
@@ -69,12 +69,9 @@ const items = computed(() => {
 useSeoMeta({
   title: `${upperFirst(data.value.type)} ${data.value.name}`,
   ogTitle: `${upperFirst(data.value.type)} ${data.value.name}`,
-  ogImage: data.value.additionalContent.find((x)=>
-   x?.type == 'image' 
-  )?.src,
+  ogImage: data.value.additionalContent.find((x) => x?.type == "image")?.src,
   description: data.value.summary,
   ogDescription: data.value.summary,
-  
 });
 </script>
 

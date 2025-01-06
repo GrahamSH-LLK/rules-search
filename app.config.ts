@@ -1,6 +1,13 @@
 export default defineAppConfig({
-  ui: {
-    colors: {
+   ui: {
+      tooltip: {
+        slots: {
+         content: "h-auto",
+          text: 'max-w-64 overflow-visible text-wrap'
+        }
+      },
+    
+      colors: {
       primary: "blue",
       neutral: "zinc",
     },

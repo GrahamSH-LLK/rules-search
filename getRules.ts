@@ -48,6 +48,7 @@ export const getDocument = async (currYear: number, ftc: boolean = false) => {
  * Fixes image URLs since we aren't hosted on the same path as the real manual
  * @param currYear Current year
  * @param document The document to fix
+ * @param ftc      Whether it is the FTC manual
  */
 export const fixImages = (
   currYear: number,
@@ -116,6 +117,39 @@ export const fixRuleNumbers = (
     }
   });
 };
+
+export const fixRuleNumbersFtc = (
+  currYear: number,
+  document: Document,
+  ftc: boolean
+) => {
+  if (currYear !== 2025 || !ftc) {
+    return;
+  }
+  const elements = document.querySelectorAll('[class*="RuleNumber"]');
+  elements.forEach((element) => {
+    const aTags = [...element.querySelectorAll("a[name]")];
+    if (!aTags.length) {
+      let tag = Object.assign(document.createElement("a"));
+      element.append(tag);
+      aTags.push(tag);
+    }
+    for (let aTag of aTags) {
+      const name = aTag.getAttribute("name");
+      if (name?.match(ruleRegex)) {
+        const [_, letter, number] = name.match(ruleRegex)!;
+        const numberInt = parseInt(number);
+        if (numberInt >= 421 && numberInt <= 820 && letter == "G") {
+          aTag.setAttribute(
+            "name",
+            element?.querySelector("b:first-child")?.textContent?.trim() || ""
+          );
+        }
+      }
+    }
+  });
+};
+
 /**
  * Removes rulenumber class from broken list item "rules" that shouldn't be rules
  * @param currYear Current year
@@ -175,7 +209,118 @@ export interface AdditionalContentText extends AdditionalContent {
   type: AdditionalContentType.Box | AdditionalContentType.Text;
   text: string;
 }
-export const getRulesCorpus = (document: Document) => {
+const insertGlossaryMarkup = (
+  currYear: number,
+  document: Document,
+  ftc: boolean
+) => {
+  if (ftc || currYear !== 2024 && currYear !== 2025) {
+    return;
+  }
+  // enumerate glossary items
+  const glossarySection = [...document?.querySelectorAll("h1")]?.find(
+    (heading) => heading.textContent?.includes("Glossary")
+  )?.parentElement?.parentElement;
+  if (!glossarySection) {
+    consola.warn("Glossary heading not found");
+    return;
+  }
+  const glossaryTableBody = glossarySection.querySelector("tbody");
+
+  if (!glossaryTableBody) {
+    consola.warn("Glossary table body not found");
+    return;
+  }
+
+  const glossaryItems: Record<string, string> = [
+    ...glossaryTableBody.querySelectorAll("tr"),
+  ]
+    .map((item) => {
+      return [
+        item.children[0].textContent?.trim() ?? "",
+        item.children[1].textContent?.trim() ?? "",
+      ];
+    })
+    .reduce((acc, item) => {
+      return { ...acc, [item[0]]: item[1] };
+    }, {});
+  function replaceTextInDocument(searchPattern, attribute, attributeValue) {
+    // Convert string patterns to RegExp objects
+    const regex =
+      searchPattern instanceof RegExp
+        ? searchPattern
+        : new RegExp(searchPattern, "g");
+
+    const walker = document.createTreeWalker(
+      document.body,
+      document?.defaultView?.NodeFilter.SHOW_TEXT,
+      {
+        acceptNode: function (node) {
+          if (
+            node.parentNode.nodeName.toLowerCase() === "script" ||
+            node.parentNode.nodeName.toLowerCase() === "style"
+          ) {
+            return document?.defaultView?.NodeFilter.FILTER_REJECT;
+          }
+          if (node.textContent.match(regex)) {
+            return document?.defaultView?.NodeFilter.FILTER_ACCEPT;
+          }
+          return document?.defaultView?.NodeFilter.FILTER_SKIP;
+        },
+      }
+    );
+
+    const nodes = [];
+    let node;
+    while ((node = walker.nextNode())) {
+      nodes.push(node);
+    }
+
+    nodes.reverse().forEach((textNode) => {
+      const text = textNode.textContent;
+      const container = document.createDocumentFragment();
+      let lastIndex = 0;
+      let match;
+
+      regex.lastIndex = 0; // Reset regex state
+      while ((match = regex.exec(text)) !== null) {
+        // Add text before the match
+        if (match.index > lastIndex) {
+          container.appendChild(
+            document.createTextNode(text.slice(lastIndex, match.index))
+          );
+        }
+
+        // Add the wrapped match
+        const span = document.createElement("tooltip");
+        span.setAttribute(attribute, attributeValue);
+        span.textContent = match[0];
+        container.appendChild(span);
+
+        lastIndex = regex.lastIndex;
+      }
+
+      // Add remaining text after last match
+      if (lastIndex < text.length) {
+        container.appendChild(document.createTextNode(text.slice(lastIndex)));
+      }
+
+      textNode.parentNode.replaceChild(container, textNode);
+    });
+  }
+  for (let glossaryTerm in glossaryItems) {
+    replaceTextInDocument(
+      `\\b(${glossaryTerm})S?\\b`,
+      "label",
+      glossaryItems[glossaryTerm]
+    );
+  }
+};
+export const getRulesCorpus = (
+  currYear: number,
+  document: Document,
+  ftc: boolean
+) => {
   const sectionsAndRules = document.querySelectorAll(
     `div > h2, [class*="RuleNumber"]`
   );
@@ -224,7 +369,7 @@ export const getRulesCorpus = (document: Document) => {
         .querySelector(`span.Headline-Evergreen:first-child`)
         ?.textContent?.trim() ??
       `FIXME${Math.floor(Math.random() * 100)}`;
-      
+
     output[key] = {
       name: key,
       type: section ? Type.Section : Type.Rule,
@@ -235,7 +380,6 @@ export const getRulesCorpus = (document: Document) => {
       textContent: rule?.textContent || "",
     };
   }
-
   return output;
 };
 
@@ -288,13 +432,27 @@ export const scrapeRules = async () => {
     fixImages,
     fixRuleLinks,
     fixRuleNumbers,
+    fixRuleNumbersFtc,
     fixListRules,
+    insertGlossaryMarkup,
   ];
   for (const preprocessor of enabledPreprocessors) {
     consola.info(`Running preprocessor ${preprocessor.name}`);
     preprocessor(currYear, document, ftc);
   }
-  const rules = await getRulesCorpus(document);
+  const rules = getRulesCorpus(currYear, document, ftc);
+  const fixmeCount = Object.keys(rules).filter((name) =>
+    name.includes("FIXME")
+  ).length;
+  if (fixmeCount) {
+    consola.error(`Couldn't find name for ${fixmeCount} rules `);
+  }
+
+  if (process.env.DRY_RUN === "true") {
+    consola.log("Dry run. No changes made to Meilisearch.");
+    return;
+  }
+
   consola.info("Scraping done. Writing to meilisearch...");
 
   const client = new MeiliSearch({
@@ -306,10 +464,7 @@ export const scrapeRules = async () => {
     consola.error("No rules found");
     return;
   }
-  const fixmeCount = Object.keys(rules).find(name => name.includes('FIXME'));
-  if (fixmeCount) {
-    consola.error(`Couldn't find name for ${fixmeCount} rules `);
-  }
+
   const index = `rules-${currYear}${ftc ? "-ftc" : ""}`;
   const idx = client.index(index);
   if (process.env.CLEAR === "true") {

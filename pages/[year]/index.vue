@@ -67,10 +67,7 @@
               ></UButton>
             </div>
           </template>
-          <div
-            class="prose max-w-full dark:prose-invert overflow-x-auto"
-            v-html="result.text"
-          ></div>
+          <RenderHtml :html="result.text"/>
         </UCard>
       </div>
     </UContainer>
