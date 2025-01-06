@@ -7,7 +7,6 @@ export default defineNuxtConfig({
     "@nuxt/fonts",
     "@scalar/nuxt",
     "@nuxtjs/plausible",
-    "@nuxtjs/mdc",
   ],
   css: ["~/assets/css/main.css"],
   nitro: {
@@ -28,13 +27,5 @@ export default defineNuxtConfig({
   plausible: {
     apiHost: "https://possible.grahamsh.com",
   },
-  mdc: {
-   components: {
-     //prose: true, // Disable predefined prose components
-     map: {
-       //tooltip: 'Tooltip'
-     }
-   }
- }
 
 });
