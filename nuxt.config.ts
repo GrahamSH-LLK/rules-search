@@ -2,12 +2,7 @@
 export default defineNuxtConfig({
   compatibilityDate: "2024-11-01",
   devtools: { enabled: true },
-  modules: [
-    "@nuxt/ui",
-    "@nuxt/fonts",
-    "@scalar/nuxt",
-    "@nuxtjs/plausible",
-  ],
+  modules: ["@nuxt/ui", "@nuxt/fonts", "@scalar/nuxt", "@nuxtjs/plausible"],
   css: ["~/assets/css/main.css"],
   nitro: {
     experimental: {
@@ -28,9 +23,10 @@ export default defineNuxtConfig({
     apiHost: "https://possible.grahamsh.com",
   },
   vite: {
-   ssr: {
-      external: ["canvas"]
-   }
-  }
-
+    build: {
+      rollupOptions: {
+        external: ["canvas"],
+      },
+    },
+  },
 });
