@@ -163,7 +163,7 @@ export const fixListRules = (
 ) => {
   if (!ftc && currYear == 2025) {
     const brokenElements = document.querySelectorAll(
-      '.RuleNumber-Robot[style="margin-left:1.0in"], .RuleNumber-Robot[style="margin-left:99.35pt;text-indent:-99.35pt"], .RuleNumber-Game[style="margin-left:.75in;text-indent:-.25in"]'
+      '.RuleNumber-Robot[style="margin-left:1.0in"], .RuleNumber-Robot[style="margin-left:99.35pt;text-indent:-99.35pt"], .RuleNumber-Game[style="margin-left:.75in;text-indent:-.25in"], .RuleNumber-Robot[align="center"]'
     );
     for (const brokenElement of brokenElements) {
       brokenElement.classList.remove("RuleNumber-Game");
@@ -209,12 +209,92 @@ export interface AdditionalContentText extends AdditionalContent {
   type: AdditionalContentType.Box | AdditionalContentType.Text;
   text: string;
 }
+/**
+ * Replace specific text in document with tooltip element and
+ * @param searchPattern Regex to search for
+ * @param attributeValue Attribute value to set
+ */
+const replaceTextInDocument = (
+  document: Document,
+  searchPattern: string | RegExp,
+  attributeValue: string
+) => {
+  enum NodeFilter {
+    FILTER_REJECT = 2,
+    FILTER_ACCEPT = 1,
+    FILTER_SKIP = 3,
+  }
+  const regex =
+    searchPattern instanceof RegExp
+      ? searchPattern
+      : new RegExp(searchPattern, "g");
+  const walker = document.createTreeWalker(
+    document.body,
+    document?.defaultView?.NodeFilter.SHOW_TEXT,
+    {
+      acceptNode: function (node) {
+        if (
+          node.parentNode?.nodeName.toLowerCase() === "script" ||
+          node.parentNode?.nodeName.toLowerCase() === "style"
+        ) {
+          return NodeFilter.FILTER_REJECT;
+        }
+        if (node.textContent?.match(regex)) {
+          return NodeFilter.FILTER_ACCEPT;
+        }
+        return NodeFilter.FILTER_SKIP;
+      },
+    }
+  );
+
+  const nodes = [];
+  let node;
+  while ((node = walker.nextNode())) {
+    nodes.push(node);
+  }
+
+  nodes.reverse().forEach((textNode) => {
+    const text = textNode.textContent;
+    if (!text) {
+      return;
+    }
+    const container = document.createDocumentFragment();
+    let lastIndex = 0;
+    let match;
+
+    regex.lastIndex = 0; // Reset regex state
+    while ((match = regex.exec(text)) !== null) {
+      // Add text before the match
+      if (match.index > lastIndex) {
+        container.appendChild(
+          document.createTextNode(text.slice(lastIndex, match.index))
+        );
+      }
+
+      // Add the wrapped match
+      const span = document.createElement("tooltip");
+      span.setAttribute("label", attributeValue);
+      span.textContent = match[0];
+      container.appendChild(span);
+
+      lastIndex = regex.lastIndex;
+    }
+
+    // Add remaining text after last match
+    if (lastIndex < text.length) {
+      container.appendChild(document.createTextNode(text.slice(lastIndex)));
+    }
+
+    textNode.parentNode?.replaceChild(container, textNode);
+  });
+};
+
 const insertGlossaryMarkup = (
   currYear: number,
   document: Document,
   ftc: boolean
 ) => {
-  if (ftc || currYear !== 2024 && currYear !== 2025) {
+  if (ftc || (currYear !== 2024 && currYear !== 2025)) {
     return;
   }
   // enumerate glossary items
@@ -244,74 +324,10 @@ const insertGlossaryMarkup = (
     .reduce((acc, item) => {
       return { ...acc, [item[0]]: item[1] };
     }, {});
-  function replaceTextInDocument(searchPattern, attribute, attributeValue) {
-    // Convert string patterns to RegExp objects
-    const regex =
-      searchPattern instanceof RegExp
-        ? searchPattern
-        : new RegExp(searchPattern, "g");
-
-    const walker = document.createTreeWalker(
-      document.body,
-      document?.defaultView?.NodeFilter.SHOW_TEXT,
-      {
-        acceptNode: function (node) {
-          if (
-            node.parentNode.nodeName.toLowerCase() === "script" ||
-            node.parentNode.nodeName.toLowerCase() === "style"
-          ) {
-            return document?.defaultView?.NodeFilter.FILTER_REJECT;
-          }
-          if (node.textContent.match(regex)) {
-            return document?.defaultView?.NodeFilter.FILTER_ACCEPT;
-          }
-          return document?.defaultView?.NodeFilter.FILTER_SKIP;
-        },
-      }
-    );
-
-    const nodes = [];
-    let node;
-    while ((node = walker.nextNode())) {
-      nodes.push(node);
-    }
-
-    nodes.reverse().forEach((textNode) => {
-      const text = textNode.textContent;
-      const container = document.createDocumentFragment();
-      let lastIndex = 0;
-      let match;
-
-      regex.lastIndex = 0; // Reset regex state
-      while ((match = regex.exec(text)) !== null) {
-        // Add text before the match
-        if (match.index > lastIndex) {
-          container.appendChild(
-            document.createTextNode(text.slice(lastIndex, match.index))
-          );
-        }
-
-        // Add the wrapped match
-        const span = document.createElement("tooltip");
-        span.setAttribute(attribute, attributeValue);
-        span.textContent = match[0];
-        container.appendChild(span);
-
-        lastIndex = regex.lastIndex;
-      }
-
-      // Add remaining text after last match
-      if (lastIndex < text.length) {
-        container.appendChild(document.createTextNode(text.slice(lastIndex)));
-      }
-
-      textNode.parentNode.replaceChild(container, textNode);
-    });
-  }
   for (let glossaryTerm in glossaryItems) {
     replaceTextInDocument(
+      document,
       `\\b(${glossaryTerm})S?\\b`,
-      "label",
       glossaryItems[glossaryTerm]
     );
   }
