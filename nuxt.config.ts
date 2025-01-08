@@ -22,11 +22,4 @@ export default defineNuxtConfig({
   plausible: {
     apiHost: "https://possible.grahamsh.com",
   },
-  vite: {
-    build: {
-      rollupOptions: {
-        external: ["jsdom"],
-      },
-    },
-  },
 });

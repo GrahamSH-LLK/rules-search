@@ -1,13 +1,13 @@
 <script lang="ts">
+import { parse } from "dom-parse";
+
 export default {
   props: ["html"],
   async setup(props) {
-   const Tooltip = resolveComponent("Tooltip");
-    let html = props.html;
+    const Tooltip = resolveComponent("Tooltip");
+    let html = `<div class="prose max-w-full dark:prose-invert overflow-x-auto px-4">${props.html}</div>`;
 
-    const parser = new (window?.DOMParser ||
-      (new (await import("jsdom")).JSDOM()).window.DOMParser)();
-    const doc = parser.parseFromString(html, "text/html");
+    const doc = parse(html);
 
     function processNode(node) {
       if (node.nodeType === 3) {
@@ -17,22 +17,19 @@ export default {
 
       if (node.nodeType === 1) {
         const tag = node.tagName.toLowerCase();
-        
+
         const props = {};
 
         Array.from(node.attributes).forEach((attr) => {
           props[attr.name] = attr.value;
         });
-        if (tag == 'body') {
-         props['class'] = 'prose max-w-full dark:prose-invert overflow-x-auto px-4'
-        }
-        
+
         const children = Array.from(node.childNodes)
           .map(processNode)
           .filter(Boolean);
         return () =>
           h(
-            tag == 'tooltip' ? Tooltip :tag == 'body' ? 'div': tag ,
+            tag == "tooltip" ? Tooltip : tag,
             props,
             children.map((child) => child())
           );
@@ -41,7 +38,7 @@ export default {
       return null;
     }
 
-    return processNode(doc.body);
+    return processNode(doc.children[0]);
   },
 };
 </script>

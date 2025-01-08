@@ -6,6 +6,6 @@ const props = defineProps<{
 
 <template>
   <UTooltip :text="props.label"
-    ><span class="decoration-dotted	 underline text-semibold"><MDCSlot/></span></UTooltip
+    ><span class="decoration-dotted	 underline text-semibold"><slot/></span></UTooltip
   >
 </template>

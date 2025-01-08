@@ -20,6 +20,7 @@
     "@vueuse/core": "^12.0.0",
     "@vueuse/router": "^12.0.0",
     "consola": "^3.3.3",
+    "dom-parse": "^3.2.1",
     "meilisearch": "^0.45.0",
     "nitro-cloudflare-dev": "^0.2.1",
     "nuxt": "^3.14.1592",
