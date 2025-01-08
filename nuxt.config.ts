@@ -25,7 +25,7 @@ export default defineNuxtConfig({
   vite: {
     build: {
       rollupOptions: {
-        external: ["canvas"],
+        external: ["jsdom"],
       },
     },
   },
