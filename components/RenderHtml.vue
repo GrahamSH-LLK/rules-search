@@ -19,10 +19,11 @@ export default {
         const tag = node.tagName.toLowerCase();
 
         const props = {};
-
+      
         Array.from(node.attributes).forEach((attr) => {
           props[attr.name] = attr.value;
         });
+        
 
         const children = Array.from(node.childNodes)
           .map(processNode)
@@ -31,7 +32,7 @@ export default {
           h(
             tag == "tooltip" ? Tooltip : tag,
             props,
-            children.map((child) => child())
+            tag == 'tooltip' ? {default:()=> node.textContent} :children.map((child) => child())
           );
       }
 
