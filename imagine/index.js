@@ -15,7 +15,7 @@ const page = await browser.newPage();
 
 const takeScreenshot = async (rule) => {
   await page.goto(`https://frctools.com/2025/rule/${rule}`);
-  const element = await page.$(".prose");
+  const element = await page.waitForSelector(".prose");
   if (!element) {
     throw new Error("Could not find rule");
   }
