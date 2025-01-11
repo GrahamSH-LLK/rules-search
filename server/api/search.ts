@@ -2,6 +2,19 @@ import { MeiliSearch } from "meilisearch";
 import { Rule } from "../utils";
 
 export default defineEventHandler(async (event) => {
+   setResponseHeaders(event, {
+      "Access-Control-Allow-Methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
+      "Access-Control-Allow-Origin": "*",
+      'Access-Control-Allow-Credentials': 'true',
+      "Access-Control-Allow-Headers": '*',
+      "Access-Control-Expose-Headers": '*'
+    })
+    if(event.method === 'OPTIONS'){
+      event.node.res.statusCode = 204
+      event.node.res.statusMessage = "No Content."
+      return 'OK'
+    }
+  
   const url = getRequestURL(event);
   const MEILI_READ_KEY = `2db41b6a1ce3e0daf62e36d67f996e60f41a07807588971a050d7bfb74df5efe`;
   let query = url.searchParams.get("query") ?? "";
