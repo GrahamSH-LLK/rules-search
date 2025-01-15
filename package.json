@@ -13,7 +13,7 @@
   "dependencies": {
     "@neoconfetti/vue": "^2.2.1",
     "@nuxt/fonts": "^0.10.2",
-    "@nuxt/ui": "^3.0.0-alpha.9",
+    "@nuxt/ui": "^3.0.0-alpha.11",
     "@nuxtjs/plausible": "^1.2.0",
     "@scalar/nuxt": "^0.2.150",
     "@types/jsdom": "^21.1.7",

@@ -9,8 +9,11 @@ export default {
     let doc;
     try {
       doc = parse(html);
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
+      if (e instanceof ReferenceError) {
+      console.error(e.stack)
+      }
       return () => { 
          return h("p", "Failed to parse HTML");
       };
