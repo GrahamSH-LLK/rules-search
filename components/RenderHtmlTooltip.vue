@@ -1,21 +1,28 @@
 <script lang="ts">
-import { parse } from "dom-parse";
-
+import { JSDOM } from "jsdom";
 export default {
   props: ["html"],
   async setup(props) {
+    const parse = (html: string) => {
+      const element = document.createElement("template");
+      if (html !== null && html !== undefined) {
+        element.innerHTML = html;
+      }
+      return element.content;
+    };
+
     const Tooltip = resolveComponent("Tooltip");
     let html = `<div class="prose max-w-full dark:prose-invert overflow-x-auto px-4">${props.html}</div>`;
     let doc;
     try {
-      doc = parse(html);
+      doc = import.meta.server ? JSDOM.fragment(html) : parse(html);
     } catch (e: any) {
       console.error(e);
       if (e instanceof ReferenceError) {
-      console.error(e.stack)
+        console.error(e.stack);
       }
-      return () => { 
-         return h("p", "Failed to parse HTML");
+      return () => {
+        return h("p", "Failed to parse HTML");
       };
     }
 
