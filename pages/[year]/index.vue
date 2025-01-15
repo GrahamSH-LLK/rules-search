@@ -67,7 +67,7 @@
               ></UButton>
             </div>
           </template>
-          <RenderHtml :html="result.text"/>
+          <RenderHtmlTooltip :html="result.text"/>
         </UCard>
       </div>
     </UContainer>

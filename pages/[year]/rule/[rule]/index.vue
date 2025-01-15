@@ -3,7 +3,7 @@
     <Nav v-model="yearNav" page="Search" />
     <UContainer class="flex flex-col gap-4 mt-4" v-if="!error">
       <UBreadcrumb :items="items" />
-      <RenderHtml :html="data.text" />
+      <RenderHtmlTooltip :html="data.text" />
       </UContainer
     >
     <UContainer class="flex flex-col gap-4 mt-4" v-else>
