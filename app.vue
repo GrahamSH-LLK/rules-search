@@ -5,7 +5,7 @@
     <div class="flex-1">
     <NuxtPage />
    </div>
-    <div class="w-full flex justify-center gap-8 items-center p-2 bg-gray-50/50">
+    <div class="w-full flex justify-center gap-4 md:gap-8 items-center p-2 bg-gray-50/50 md:flex-row flex-col ">
       <span class="font-display italic">built by <a href="https://grahamsh.com" class="underline text-blue-700 font-semibold">grahamsh</a></span>
       <BuyMeACoffee />
     </div>
