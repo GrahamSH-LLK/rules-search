@@ -1,7 +1,15 @@
 <template>
   <UApp>
     <NuxtRouteAnnouncer />
+    <div class="flex flex-col min-h-screen">
+    <div class="flex-1">
     <NuxtPage />
+   </div>
+    <div class="w-full flex justify-center gap-8 items-center p-2 bg-gray-50/50">
+      <span class="font-display italic">built by <a href="https://grahamsh.com" class="underline text-blue-700 font-semibold">grahamsh</a></span>
+      <BuyMeACoffee />
+    </div>
+   </div>
   </UApp>
 </template>
 <script setup>
@@ -9,7 +17,7 @@ onMounted(() => {
   if (
     window &&
     !localStorage.getItem("bingo-25-shown") &&
-    new Date().getTime() > 1735102800000
+    new Date().getTime() > 1735102800000 && false
   ) {
     // christmas 2024
     const toast = useToast().add({
