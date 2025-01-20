@@ -4,6 +4,20 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ["@nuxt/ui", "@nuxt/fonts", "@scalar/nuxt", "@nuxtjs/plausible"],
   css: ["~/assets/css/main.css"],
+  fonts: {
+    families: [{ name: "Bricolage Grotesque", provider: "google" }],
+      defaults: {
+        weights: [400, 500,600],
+        styles: ['normal', 'italic'],
+        subsets: [
+          'greek-ext',
+          'greek',
+          'latin-ext',
+          'latin',
+        ]
+      },
+  
+  },
   nitro: {
     experimental: {
       openAPI: true,
