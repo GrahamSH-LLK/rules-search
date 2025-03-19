@@ -23,7 +23,7 @@
     "dom-parse": "^3.2.1",
     "meilisearch": "^0.45.0",
     "nitro-cloudflare-dev": "^0.2.1",
-    "nuxt": "^3.14.1592",
+    "nuxt": "^3.16.0",
     "scule": "^1.3.0",
     "tsx": "^4.19.2",
     "vue": "latest",
