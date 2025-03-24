@@ -4,6 +4,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ["@nuxt/ui", "@nuxt/fonts", "@scalar/nuxt", "@nuxtjs/plausible"],
   css: ["~/assets/css/main.css"],
+
   fonts: {
     families: [{ name: "Bricolage Grotesque", provider: "google" }],
       defaults: {
@@ -22,6 +23,7 @@ export default defineNuxtConfig({
     experimental: {
       openAPI: true,
     },
+ 
   },
   scalar: {
     spec: {
