@@ -72,7 +72,18 @@ useSeoMeta({
   ogImage: data.value.additionalContent.find((x) => x?.type == "image")?.src,
   description: data.value.summary,
   ogDescription: data.value.summary,
+  
 });
+useHead({
+   link: [
+      {
+         href: `https://3000-grahamshllk-rulessearch-dgkli4y6ykb.ws-us118.gitpod.io/api/apub?year=${year.value}&query=${rule.value}`,
+         rel: "alternate",
+         title: "ActivityPub (JSON)",
+         type: "application/activity+json"
+      }
+   ]
+})
 </script>
 
 <style></style>
