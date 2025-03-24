@@ -19,6 +19,10 @@ export default defineNuxtConfig({
       },
   
   },
+  build: {
+   rollupOptions: {}
+  },
+
   nitro: {
     experimental: {
       openAPI: true,
@@ -38,4 +42,15 @@ export default defineNuxtConfig({
   plausible: {
     apiHost: "https://possible.grahamsh.com",
   },
+  vite: {
+   build: {
+      rollupOptions: {
+         external: ["canvas"]
+      }
+   },
+   resolve: {
+      external: ["canvas"]
+   }
+  },
+  
 });
