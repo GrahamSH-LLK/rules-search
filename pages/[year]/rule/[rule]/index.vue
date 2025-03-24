@@ -77,7 +77,7 @@ useSeoMeta({
 useHead({
    link: [
       {
-         href: `https://3000-grahamshllk-rulessearch-dgkli4y6ykb.ws-us118.gitpod.io/api/apub?year=${year.value}&query=${rule.value}`,
+         href: `https://frctools.com/api/apub?year=${year.value}&query=${rule.value}`,
          rel: "alternate",
          title: "ActivityPub (JSON)",
          type: "application/activity+json"
