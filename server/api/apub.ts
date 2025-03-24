@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
         sensitive: "as:sensitive",
       },
     ],
-    id: `https:\/\/frctools.com\/apub?year=${year}&rule=${rule}`,
+    id: `https:\/\/frctools.com\/apub?year=${year}&rule=${rule.name}`,
     type: "Note",
     attributedTo:
       "https://frctools.coms/api/actor",
