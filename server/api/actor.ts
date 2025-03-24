@@ -1,6 +1,7 @@
 export default defineEventHandler((event) => {
   const accept = getHeader(event, "accept");
   if (accept?.includes("activity")) {
+   
     return {
       "@context": [
         "https://www.w3.org/ns/activitystreams",

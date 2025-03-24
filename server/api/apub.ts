@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
     id: `https:\/\/frctools.com\/apub?year=${year}&rule=${rule.name}`,
     type: "Note",
     attributedTo:
-      "https://frctools.coms/api/actor",
+      "https://frctools.com/api/actor",
     content: rule.text,
     contentMap: {
       en: rule.text,
