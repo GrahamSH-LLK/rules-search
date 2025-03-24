@@ -1,5 +1,7 @@
 import { MeiliSearch } from "meilisearch";
 import { Rule } from "../utils";
+import { JSDOM } from "jsdom";
+
 export default defineEventHandler(async (event) => {
   const url = getRequestURL(event);
 
@@ -19,6 +21,14 @@ export default defineEventHandler(async (event) => {
     throw { error: "no such rule" };
   }
   const rule = searchResults.hits[0];
+  const { window } = new JSDOM(rule.text);
+  window.document.querySelectorAll(`div:is([style*="margin-left: 1.0in; margin-right: 1.0in"]):has(.BlueBox), div:is([style*="margin-left:1.0in;margin-right:1.0in"]):has(.BlueBox)`).forEach((blueBoxContainer)=> {
+   const children = blueBoxContainer.childNodes;
+   const blockquote = window.document.createElement("blockquote");
+   blockquote.append(...children);
+   blueBoxContainer.after(blockquote);
+   blueBoxContainer.remove();
+});
   setResponseHeader(event, "content-type", "application/activity+json");
   return {
     "@context": [
@@ -30,11 +40,10 @@ export default defineEventHandler(async (event) => {
     ],
     id: `https:\/\/frctools.com\/apub?year=${year}&rule=${rule.name}`,
     type: "Note",
-    attributedTo:
-      "https://frctools.com/api/actor",
-    content: rule.text,
+    attributedTo: "https://frctools.com/api/actor",
+    content: window.document.body.innerHTML,
     contentMap: {
-      en: rule.text,
+      en: window.document.body.innerHTML,
     },
     url: `https:\/\/frctools.com/${year}/rule/${rule.name}`,
     to: ["https://www.w3.org/ns/activitystreams#Public"],
