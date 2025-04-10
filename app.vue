@@ -47,4 +47,10 @@ useSeoMeta({
   description: "Search the FRC Manual",
   ogDescription: "Search the FRC Manual",
 });
+useHead({
+  htmlAttrs: {
+    lang: 'en',
+  }
+});
+
 </script>

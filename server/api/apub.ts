@@ -1,6 +1,6 @@
 import { MeiliSearch } from "meilisearch";
 import { Rule } from "../utils";
-import { parseHTML} from "linkedom";
+//import { parseHTML} from "linkedom";
 
 export default defineEventHandler(async (event) => {
   const url = getRequestURL(event);
@@ -21,13 +21,13 @@ export default defineEventHandler(async (event) => {
     throw { error: "no such rule" };
   }
   const rule = searchResults.hits[0];
-  const { document } = parseHTML(rule.text);
+  /*const { document } = parseHTML(rule.text);
   document.querySelectorAll(`div:is([style*="margin-left: 1.0in; margin-right: 1.0in"]):has(.BlueBox), div:is([style*="margin-left:1.0in;margin-right:1.0in"]):has(.BlueBox)`).forEach((blueBoxContainer)=> {
    const blockquote = document.createElement("blockquote");
    blockquote.append(...blueBoxContainer.children);
    blueBoxContainer.after(blockquote);
    blueBoxContainer.remove();
-});
+});*/
   setResponseHeader(event, "content-type", "application/activity+json");
   return {
     "@context": [
@@ -40,9 +40,9 @@ export default defineEventHandler(async (event) => {
     id: `https:\/\/frctools.com\/apub?year=${year}&rule=${rule.name}`,
     type: "Note",
     attributedTo: "https://frctools.com/api/actor",
-    content: document.toString(),
+    content: rule.text,//document.toString(),
     contentMap: {
-      en: document.toString(),
+      en: rule.text//document.toString(),
     },
     url: `https:\/\/frctools.com/${year}/rule/${rule.name}`,
     to: ["https://www.w3.org/ns/activitystreams#Public"],

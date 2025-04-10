@@ -37,7 +37,7 @@
             <span v-if="!query.length"
               >Nothing yet.
               <span
-                class="bold text-blue-400 cursor-pointer"
+                class="bold text-blue-500 cursor-pointer"
                 @click="randomSearch"
                 >Search something!</span
               ></span
@@ -78,6 +78,7 @@
 import { upperFirst } from "scule";
 import { watch } from "vue";
 import { useRouteQuery } from "@vueuse/router";
+import {watchDebounced} from "@vueuse/core";
 const route = useRoute();
 const validYears = useYears();
 if (!validYears.includes(route.params.year)) {
@@ -153,7 +154,7 @@ const randomSearch = () => {
   query.value =
     randomSearches[Math.floor(Math.random() * randomSearches.length - 1)];
 };
-watch(query, refresh);
+watchDebounced(query, refresh, { debounce: 200 },);
 watch(semanticEnabled, refresh);
 useSeoMeta({
   title: `Search the manual`,
