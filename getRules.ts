@@ -1,8 +1,10 @@
 import { JSDOM } from "jsdom";
 import { consola } from "consola";
 import { MeiliSearch, MeiliSearchApiError, type Embedders } from "meilisearch";
-export const ruleRegex = /^([a-zA-Z])(\d{3})$/;
+import TurndownService from "turndown";
 
+export const ruleRegex = /^([a-zA-Z])(\d{3})$/;
+const turndown = new TurndownService();
 /**
  * Parses a html buffer as ascii in order to get the charset
  * @param ui8array ui8array of html content
@@ -176,6 +178,7 @@ export interface Rule {
   name: string;
   type: Type;
   text: string;
+  markdownContent: string;
   summary: string;
   additionalContent: AdditionalContent[];
   evergreen: boolean;
@@ -390,6 +393,7 @@ export const getRulesCorpus = (
       name: key,
       type: section ? Type.Section : Type.Rule,
       text: htmlContent.join("\n"),
+      markdownContent: turndown.turndown(htmlContent.join("\n")),
       summary: rule.textContent || "",
       additionalContent,
       evergreen: false,
@@ -422,7 +426,7 @@ const traverseUntilSelector = (
 };
 
 export const scrapeRules = async () => {
-  const requiredEnvVariables = ["MEILI_WRITE_KEY", "OPENAI_KEY"];
+  const requiredEnvVariables = ["MEILI_WRITE_KEY", "GEMINI_KEY"];
   for (const requiredEnv of requiredEnvVariables) {
     if (!process.env[requiredEnv]) {
       consola.error(`Missing required environment variable: ${requiredEnv}`);
@@ -501,7 +505,14 @@ export const scrapeRules = async () => {
     }
   }
   const attributes = await idx.getFilterableAttributes();
-  const wantedAttributes = ["text", "name", "evergreen", "type", "textContent"];
+  const wantedAttributes = [
+    "text",
+    "markdownContent",
+    "name",
+    "evergreen",
+    "type",
+    "textContent",
+  ];
   for (const attribute of wantedAttributes) {
     if (!attributes.includes(attribute)) {
       await idx.updateFilterableAttributes(wantedAttributes);
@@ -512,13 +523,27 @@ export const scrapeRules = async () => {
   const currEmbedderSettings = await client.index(index).getEmbedders();
   const wantedEmbedderSettings: Embedders = {
     default: {
-      source: "openAi",
-      apiKey: process.env.OPENAI_KEY,
-      model: "text-embedding-3-large",
-      dimensions: 3072,
-      documentTemplateMaxBytes: 800,
+      source: "rest",
+      url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-exp-03-07:embedContent?key=${process.env.GEMINI_KEY}`,
+      request: {
+        model: "models/gemini-embedding-exp-03-07",
+        content: {
+          parts: [
+            {
+              text: "{{text}}",
+            },
+          ],
+        },
+        task_type: "RETRIEVAL_QUERY",
+        outputDimensionality: 3072,
+      },
+      response: {
+        embedding: {
+          values: "{{embedding}}",
+        },
+      },
       documentTemplate:
-        "An rule for a robotics competition with the content '{{doc.text}}'",
+        "A {{doc.type}} named {{doc.name}} for a robotics competition with the content '{{doc.markdownContent}}'",
     },
   };
   if (
