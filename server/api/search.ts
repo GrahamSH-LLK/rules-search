@@ -40,6 +40,12 @@ export default defineEventHandler(async (event) => {
   }
 
   const searchResults = await index.search<Rule>(query, options);
+  if (!searchResults.hits.length && (searchResults as any).code == "invalid_search_embedder") {
+   throw createError({
+      statusCode: 501,
+      statusMessage: "Rules are currently being reindexed. Email support@frctools.com if this continues."
+   });
+  }
   return searchResults;
 });
 /*
