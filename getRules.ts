@@ -183,6 +183,7 @@ export interface Rule {
   additionalContent: AdditionalContent[];
   evergreen: boolean;
   textContent: string;
+  section: string;
 }
 
 export interface AdditionalContent {
@@ -388,7 +389,7 @@ export const getRulesCorpus = (
         .querySelector(`span.Headline-Evergreen:first-child`)
         ?.textContent?.trim() ??
       `FIXME${Math.floor(Math.random() * 100)}`;
-
+    const sectionText = rule.parentElement?.querySelector<HTMLHeadingElement>('div > h1')?.textContent?.replace(/\s+|\n/, ' - ').replace(/\n/g, " ") || "";
     output[key] = {
       name: key,
       type: section ? Type.Section : Type.Rule,
@@ -398,6 +399,7 @@ export const getRulesCorpus = (
       additionalContent,
       evergreen: false,
       textContent: rule?.textContent || "",
+      section: sectionText
     };
   }
   return output;
@@ -512,6 +514,7 @@ export const scrapeRules = async () => {
     "evergreen",
     "type",
     "textContent",
+    "section"
   ];
   for (const attribute of wantedAttributes) {
     if (!attributes.includes(attribute)) {

@@ -7,27 +7,17 @@ export default defineNuxtConfig({
 
   fonts: {
     families: [{ name: "Bricolage Grotesque", provider: "google" }],
-      defaults: {
-        weights: [400, 500,600],
-        styles: ['normal', 'italic'],
-        subsets: [
-          'greek-ext',
-          'greek',
-          'latin-ext',
-          'latin',
-        ]
-      },
-  
-  },
-  build: {
-   rollupOptions: {}
+    defaults: {
+      weights: [400, 500, 600],
+      styles: ["normal", "italic"],
+      subsets: ["greek-ext", "greek", "latin-ext", "latin"],
+    },
   },
 
   nitro: {
     experimental: {
       openAPI: true,
     },
- 
   },
   scalar: {
     spec: {
@@ -43,14 +33,14 @@ export default defineNuxtConfig({
     apiHost: "https://possible.grahamsh.com",
   },
   vite: {
-   build: {
+   server: {allowedHosts: ['.gitpod.io']},
+    build: {
       rollupOptions: {
-         external: ["canvas"]
-      }
-   },
-   resolve: {
-      external: ["canvas"]
-   }
+        external: ["canvas"],
+      },
+    },
+    resolve: {
+      external: ["canvas"],
+    },
   },
-  
 });

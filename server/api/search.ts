@@ -1,26 +1,32 @@
-import { MeiliSearch } from "meilisearch";
+import { MeiliSearch, type SearchParams } from "meilisearch";
 import { Rule } from "../utils";
-
+import { z } from "zod";
 export default defineEventHandler(async (event) => {
-   setResponseHeaders(event, {
-      "Access-Control-Allow-Methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
-      "Access-Control-Allow-Origin": "*",
-      'Access-Control-Allow-Credentials': 'true',
-      "Access-Control-Allow-Headers": '*',
-      "Access-Control-Expose-Headers": '*'
-    })
-    if(event.method === 'OPTIONS'){
-      event.node.res.statusCode = 204
-      event.node.res.statusMessage = "No Content."
-      return 'OK'
-    }
-  
-  const url = getRequestURL(event);
+  setResponseHeaders(event, {
+    "Access-Control-Allow-Methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "*",
+    "Access-Control-Expose-Headers": "*",
+  });
+  if (event.method === "OPTIONS") {
+    event.node.res.statusCode = 204;
+    event.node.res.statusMessage = "No Content.";
+    return "OK";
+  }
+
   const MEILI_READ_KEY = `2db41b6a1ce3e0daf62e36d67f996e60f41a07807588971a050d7bfb74df5efe`;
-  let query = url.searchParams.get("query") ?? "";
-  let year = url.searchParams.get("year") ?? new Date().getFullYear();
-  let semantic = url.searchParams.get("semantic") == "true";
-  if (query == "") {
+  const query = await getValidatedQuery(event, (data) => {
+    return z
+      .object({
+        query: z.string().default(""),
+        year: z.number({ coerce: true }).default(new Date().getFullYear()),
+        semantic: z.enum(['true', 'false']).transform((value) => value === 'true').default(true),
+        sections: z.string().optional(),
+      })
+      .parse(data);
+  });
+
+  if (query.query == "") {
     return {
       hits: [],
     };
@@ -29,22 +35,29 @@ export default defineEventHandler(async (event) => {
     host: "https://meilisearch.frctools.com",
     apiKey: MEILI_READ_KEY,
   });
-  const indexName = `rules-${year}`;
+  const indexName = `rules-${query.year}`;
   const index = await client.index(indexName);
-  let options: any = {};
-  if (semantic) {
+  let options: SearchParams = {};
+  if (query.semantic) {
     options["hybrid"] = {
       embedder: "default",
       semanticRatio: 0.5,
     };
   }
 
-  const searchResults = await index.search<Rule>(query, options);
-  if (!searchResults.hits.length && (searchResults as any).code == "invalid_search_embedder") {
-   throw createError({
+  if (query.sections) {
+   options["filter"] = query.sections;
+  }
+  const searchResults = await index.search<Rule>(query.query, options);
+  if (
+    !searchResults?.hits?.length &&
+    (searchResults as any).code == "invalid_search_embedder"
+  ) {
+    throw createError({
       statusCode: 501,
-      statusMessage: "Rules are currently being reindexed. Email support@frctools.com if this continues."
-   });
+      statusMessage:
+        "Rules are currently being reindexed. Email support@frctools.com if this continues.",
+    });
   }
   return searchResults;
 });

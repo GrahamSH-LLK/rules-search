@@ -9,6 +9,15 @@
           size="lg"
           v-model="query"
         />
+        <USelectMenu
+          v-model="selectedSections"
+          multiple
+          :items="sections"
+          :loading="sectionsStatus == 'pending'"
+          class="w-48"
+          default-value="sections"
+        />
+
         <UCheckbox
           v-model="semanticEnabled"
           label="Semantic search"
@@ -16,7 +25,7 @@
         />
       </div>
       <div
-        v-if="!resultData.hits.length || loading"
+        v-if="!resultData?.hits.length || loading"
         class="flex justify-center items-center"
       >
         <div
@@ -50,7 +59,7 @@
         </div>
       </div>
       <div class="flex gap-4 flex-col" v-if="!loading">
-        <UCard v-for="result of resultData.hits" :key="result.id">
+        <UCard v-for="result of resultData?.hits" :key="result.id">
           <template #header>
             <div class="flex justify-between">
               <NuxtLink
@@ -67,7 +76,7 @@
               ></UButton>
             </div>
           </template>
-          <RenderHtml :html="result.text"/>
+          <RenderHtml :html="result.text" />
         </UCard>
       </div>
     </UContainer>
@@ -78,7 +87,7 @@
 import { upperFirst } from "scule";
 import { watch } from "vue";
 import { useRouteQuery } from "@vueuse/router";
-import {watchDebounced} from "@vueuse/core";
+import { watchDebounced } from "@vueuse/core";
 const route = useRoute();
 const validYears = useYears();
 if (!validYears.includes(route.params.year)) {
@@ -98,12 +107,28 @@ const yearNav = computed({
     year.value = value.value;
   },
 });
+const { data: sections, status: sectionsStatus } = await useFetch(
+  "/api/facets",
+  {
+    query: {
+      year: year.value,
+      facet: "section",
+    },
+    transform: (hits) =>
+      hits.map((section) => {
+        return section.value;
+      }),
+  }
+);
+const selectedSections = ref([]);
+watchEffect(() => (selectedSections.value = sections.value));
 
 const { data, status, error, clear } = await useFetch("/api/search", {
   query: {
     year: year.value,
     query: query.value,
     semantic: semanticEnabled.value,
+    sections: selectedSections.value.map((section)=> `section = '${section}'`).join(" OR "),
   },
   onResponse() {
     loading.value = false;
@@ -119,6 +144,7 @@ const refresh = async (value) => {
       year: year.value,
       query: query.value,
       semantic: semanticEnabled.value,
+      sections: selectedSections.value.map((section)=> `section = '${section}'`).join(" OR "),
     },
     onResponse() {
       useTrackEvent(semanticEnabled.value ? "semantic_search" : "search");
@@ -126,6 +152,7 @@ const refresh = async (value) => {
     },
   });
 };
+
 const share = async (result) => {
   const shareData = {
     title: `${upperFirst(result.type)} ${result.name}`,
@@ -136,7 +163,7 @@ const share = async (result) => {
     navigator.share(shareData);
   } else {
     await navigator.clipboard.writeText(
-      `https://frctools.com/${year.value.value}/rule/${result.name}`,
+      `https://frctools.com/${year.value.value}/rule/${result.name}`
     );
   }
 };
@@ -154,8 +181,10 @@ const randomSearch = () => {
   query.value =
     randomSearches[Math.floor(Math.random() * randomSearches.length - 1)];
 };
-watchDebounced(query, refresh, { debounce: 200 },);
+watchDebounced(query, refresh, { debounce: 200 });
 watch(semanticEnabled, refresh);
+watch(selectedSections, refresh);
+
 useSeoMeta({
   title: `Search the manual`,
 });

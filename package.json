@@ -30,7 +30,8 @@
     "turndown": "^7.2.0",
     "unenv": "^2.0.0-rc.15",
     "vue": "latest",
-    "vue-router": "latest"
+    "vue-router": "latest",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.15",
