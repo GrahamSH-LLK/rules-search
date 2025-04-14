@@ -2,27 +2,31 @@
   <div>
     <Nav v-model="yearNav" page="Search" />
     <UContainer class="pt-4 flex flex-col gap-4">
-      <div class="flex justify-between gap-2 items-center">
+      <div
+        class="flex flex-col md:flex-row justify-between gap-2 items-center flex-wrap"
+      >
         <UInput
           placeholder="Search..."
-          class="flex-1 shrink"
+          class="flex-1 w-full "
           size="lg"
           v-model="query"
         />
-        <USelectMenu
-          v-model="selectedSections"
-          multiple
-          :items="sections"
-          :loading="sectionsStatus == 'pending'"
-          class="w-48"
-          default-value="sections"
-        />
+        <div class="flex gap-2 items-center justify-between ">
+          <USelectMenu
+            v-model="selectedSections"
+            multiple
+            :items="sections"
+            :loading="sectionsStatus == 'pending'"
+            class="max-w-44 md:max-w-48"
+            default-value="sections"
+          />
 
-        <UCheckbox
-          v-model="semanticEnabled"
-          label="Semantic search"
-          size="xl"
-        />
+          <UCheckbox
+            v-model="semanticEnabled"
+            label="Semantic search"
+            size="xl"
+          />
+        </div>
       </div>
       <div
         v-if="!resultData?.hits.length || loading"
@@ -128,7 +132,9 @@ const { data, status, error, clear } = await useFetch("/api/search", {
     year: year.value,
     query: query.value,
     semantic: semanticEnabled.value,
-    sections: selectedSections.value.map((section)=> `section = '${section}'`).join(" OR "),
+    sections: selectedSections.value
+      .map((section) => `section = '${section}'`)
+      .join(" OR "),
   },
   onResponse() {
     loading.value = false;
@@ -144,7 +150,9 @@ const refresh = async (value) => {
       year: year.value,
       query: query.value,
       semantic: semanticEnabled.value,
-      sections: selectedSections.value.map((section)=> `section = '${section}'`).join(" OR "),
+      sections: selectedSections.value
+        .map((section) => `section = '${section}'`)
+        .join(" OR "),
     },
     onResponse() {
       useTrackEvent(semanticEnabled.value ? "semantic_search" : "search");
