@@ -171,7 +171,7 @@ const share = async (result) => {
     navigator.share(shareData);
   } else {
     await navigator.clipboard.writeText(
-      `https://frctools.com/${year.value.value}/rule/${result.name}`
+      `https://frctools.com/${year.value}/rule/${result.name}`
     );
   }
 };
